@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+{% comment %} home.html {% endcomment %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChambeoPR</title>
+    {% load static %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    {% include "myapp/navbar.html" %}
+    <div class="container mt-4">
+        <div class="hero text-center">
+            <h1>Find services fast</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="I am looking for...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="service-grid mt-1">
+            <a href="{% url 'home_services' %}" class="service-item no-underline">
+                <div class="service-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <h3 class="services-text">Home Services</h3>
+            </a>
+            <div class="service-item">
+                <div class="service-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3 class="services-text">Car & Vehicle</h3>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h3 class="services-text">Pets</h3>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3 class="services-text">Moving</h3>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3 class="services-text">Professional</h3>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <h3 class="services-text">Events</h3>
+            </div>
+        </div>
+    </div>
+   {% include "myapp/footer.html" %} 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+</body>
+</html>

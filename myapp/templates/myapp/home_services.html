@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+{% comment %} home_services.html {% endcomment %}
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChambeoPR - Home Services</title>
+    {% load static %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    {% include "myapp/navbar.html" %}
+    <div class="container mt-4">
+        {% include "myapp/breadcrumb.html" with current_page="Home Services" %}
+        <div class="services">
+            <div class="service-grid">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3 class="services-text">Landscaping</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3 class="services-text">Gardening</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-paint-roller"></i>
+                    </div>
+                    <h3 class="services-text">Painting</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-broom"></i>
+                    </div>
+                    <h3 class="services-text">House & Airbnb Cleaning</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <h3 class="services-text">Pest Control</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3 class="services-text">Roofing</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-couch"></i>
+                    </div>
+                    <h3 class="services-text">Interior Design</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="services-text">Security Systems</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-solar-panel"></i>
+                    </div>
+                    <h3 class="services-text">Solar Panel Installation</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-swimmer"></i>
+                    </div>
+                    <h3 class="services-text">Swimming Pool Maintenance</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-baby"></i>
+                    </div>
+                    <h3 class="services-text">Babysitting/Nanny Services</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <h3 class="services-text">Air Conditioning</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="services-text">Construction & Remodeling</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="services-text">Electrician</h3>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <h3 class="services-text">Plumbing</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "myapp/footer.html" %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+</body>
+</html>
