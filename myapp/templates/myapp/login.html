@@ -7,6 +7,13 @@
             <img src="{% static 'chambeopr_logo.png' %}" alt="ChambeoPR Logo" class="img-fluid" style="max-width: 150px;">
         </div>
         <h2 class="text-center mb-4">Log in</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if 'success' in message.tags %}alert-success{% else %}alert-danger{% endif %}" role="alert">
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
             <div class="mb-3">

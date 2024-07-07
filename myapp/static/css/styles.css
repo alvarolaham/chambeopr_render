@@ -359,3 +359,53 @@ footer p {
 .card form .btn-primary:hover {
     background-color: #45a049;
 }
+
+.navbar .nav-link {
+    color: #333;
+}
+
+.navbar .nav-link:hover {
+    color: #4CAF50;
+}
+
+.navbar .nav-link.logout {
+    color: #f00 !important;
+    font-weight: bold;
+}
+
+.navbar .nav-link.logged-in {
+    font-weight: bold;
+    color: #4CAF50 !important;
+}
+
+/* CSS for alerts and additional styles */
+.alert {
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.password-requirements {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.75s ease;
+}
+
+.password-requirements.show {
+    max-height: 200px; /* Adjust based on the actual height */
+    opacity: 1;
+}
+

@@ -1,34 +1,41 @@
 {% extends 'myapp/home.html' %}
 {% load static %}
 {% block content %}
-
 <div class="container mt-5 d-flex justify-content-center">
     <div class="card p-4 shadow-sm" style="max-width: 500px; width: 100%;">
         <div class="text-center mb-4">
             <img src="{% static 'chambeopr_logo.png' %}" alt="ChambeoPR Logo" class="img-fluid" style="max-width: 150px;">
         </div>
         <h2 class="text-center mb-4">Create an account</h2>
+        {% if messages %}
+            <div class="alert alert-danger" role="alert">
+                {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                {% endfor %}
+            </div>
+        {% endif %}
         <form method="post" action="{% url 'signup' %}">
             {% csrf_token %}
             <div class="mb-3">
-                <input type="text" name="username" class="form-control" placeholder="Username" value="{{ form.username.value|default_if_none:'' }}" required>
+                <input type="text" name="username" id="id_username" class="form-control" placeholder="Username" value="{{ form.username.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
-                <input type="text" name="first_name" class="form-control" placeholder="First Name" value="{{ form.first_name.value|default_if_none:'' }}" required>
+                <input type="text" name="first_name" id="id_first_name" class="form-control" placeholder="First Name" value="{{ form.first_name.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
-                <input type="text" name="last_name" class="form-control" placeholder="Last Name" value="{{ form.last_name.value|default_if_none:'' }}" required>
+                <input type="text" name="last_name" id="id_last_name" class="form-control" placeholder="Last Name" value="{{ form.last_name.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
                 <input type="email" name="email" class="form-control" placeholder="Email Address" value="{{ form.email.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
                 <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Password" required>
-                <ul id="password-requirements" class="list-unstyled mt-2" style="display: none; font-size: 0.875em;">
+                <ul id="password-requirements" class="list-unstyled mt-2 password-requirements" style="display: none; font-size: 0.875em;">
                     <li id="password-length"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">Minimum 8 characters</span></li>
                     <li id="password-letter"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">At least 1 letter</span></li>
                     <li id="password-number"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">At least 1 number</span></li>
                     <li id="password-special"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">At least 1 special character</span></li>
+                    <li id="password-contains-name"><i class="fas fa-check text-success"></i> <span style="color: green;">Must not contain your first name, last name, or username</span></li>
                 </ul>
             </div>
             <div class="mb-3">
@@ -51,21 +58,28 @@ document.addEventListener('DOMContentLoaded', function() {
         length: document.getElementById('password-length'),
         letter: document.getElementById('password-letter'),
         number: document.getElementById('password-number'),
-        special: document.getElementById('password-special')
+        special: document.getElementById('password-special'),
+        containsName: document.getElementById('password-contains-name')
     };
 
     passwordInput.addEventListener('focus', function() {
         requirements.style.display = 'block';
+        setTimeout(() => {
+            requirements.classList.add('show');
+        }, 10); // Small delay to trigger the CSS transition
     });
 
     passwordInput.addEventListener('input', function() {
         const value = passwordInput.value;
+        const firstName = document.getElementById('id_first_name').value.toLowerCase();
+        const lastName = document.getElementById('id_last_name').value.toLowerCase();
+        const username = document.getElementById('id_username').value.toLowerCase();
 
         // Length requirement
         if (value.length >= 8) {
             requirementItems.length.querySelector('i').classList.remove('fa-times', 'text-danger');
             requirementItems.length.querySelector('i').classList.add('fa-check', 'text-success');
-            requirementItems.length.querySelector('span').style.color = 'lightgreen';
+            requirementItems.length.querySelector('span').style.color = 'green';
         } else {
             requirementItems.length.querySelector('i').classList.remove('fa-check', 'text-success');
             requirementItems.length.querySelector('i').classList.add('fa-times', 'text-danger');
@@ -76,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (/[a-zA-Z]/.test(value)) {
             requirementItems.letter.querySelector('i').classList.remove('fa-times', 'text-danger');
             requirementItems.letter.querySelector('i').classList.add('fa-check', 'text-success');
-            requirementItems.letter.querySelector('span').style.color = 'lightgreen';
+            requirementItems.letter.querySelector('span').style.color = 'green';
         } else {
             requirementItems.letter.querySelector('i').classList.remove('fa-check', 'text-success');
             requirementItems.letter.querySelector('i').classList.add('fa-times', 'text-danger');
@@ -87,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (/\d/.test(value)) {
             requirementItems.number.querySelector('i').classList.remove('fa-times', 'text-danger');
             requirementItems.number.querySelector('i').classList.add('fa-check', 'text-success');
-            requirementItems.number.querySelector('span').style.color = 'lightgreen';
+            requirementItems.number.querySelector('span').style.color = 'green';
         } else {
             requirementItems.number.querySelector('i').classList.remove('fa-check', 'text-success');
             requirementItems.number.querySelector('i').classList.add('fa-times', 'text-danger');
@@ -98,11 +112,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (/[^a-zA-Z0-9]/.test(value)) {
             requirementItems.special.querySelector('i').classList.remove('fa-times', 'text-danger');
             requirementItems.special.querySelector('i').classList.add('fa-check', 'text-success');
-            requirementItems.special.querySelector('span').style.color = 'lightgreen';
+            requirementItems.special.querySelector('span').style.color = 'green';
         } else {
             requirementItems.special.querySelector('i').classList.remove('fa-check', 'text-success');
             requirementItems.special.querySelector('i').classList.add('fa-times', 'text-danger');
             requirementItems.special.querySelector('span').style.color = 'lightcoral';
+        }
+
+        // Contains name requirement
+        if (firstName && value.toLowerCase().includes(firstName) || lastName && value.toLowerCase().includes(lastName) || username && value.toLowerCase().includes(username)) {
+            requirementItems.containsName.querySelector('i').classList.remove('fa-check', 'text-success');
+            requirementItems.containsName.querySelector('i').classList.add('fa-times', 'text-danger');
+            requirementItems.containsName.querySelector('span').style.color = 'lightcoral';
+        } else {
+            requirementItems.containsName.querySelector('i').classList.remove('fa-times', 'text-danger');
+            requirementItems.containsName.querySelector('i').classList.add('fa-check', 'text-success');
+            requirementItems.containsName.querySelector('span').style.color = 'green';
         }
     });
 });

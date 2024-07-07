@@ -38,7 +38,9 @@ def signup(request):
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('home')
         else:
-            messages.error(request, "Error creating account. Please try again.")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, error)
     else:
         form = CustomUserCreationForm()
     return render(request, 'myapp/signup.html', {'form': form})
@@ -95,6 +97,7 @@ def password_reset_request(request):
                     try:
                         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
                         logger.info(f"Password reset code sent to {user.email}")
+                        messages.success(request, f'A password reset code has been sent to {email}')
                     except Exception as e:
                         logger.error(f"Failed to send password reset code to {user.email}. Error: {str(e)}")
             else:
@@ -104,10 +107,10 @@ def password_reset_request(request):
                 try:
                     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
                     logger.info(f"Dummy password reset email sent to non-existent user: {email}")
+                    messages.success(request, f'A password reset code has been sent to {email}')
                 except Exception as e:
                     logger.error(f"Failed to send dummy password reset email to {email}. Error: {str(e)}")
 
-            messages.success(request, 'If an account with this email exists, a password reset code has been sent.')
             return redirect('password_reset_code')
     else:
         form = PasswordResetForm()
@@ -139,15 +142,33 @@ def password_reset_confirm(request, uidb64=None, token=None):
         if request.method == 'POST':
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
-                form.save()
-                messages.success(request, 'Your password has been set. You can now log in.')
-                return redirect('login')
+                new_password1 = form.cleaned_data.get('new_password1')
+                if user.check_password(new_password1):
+                    messages.error(request, 'The old and new password are the same.')
+                else:
+                    if any(item in new_password1.lower() for item in [user.first_name.lower(), user.last_name.lower(), user.username.lower()]):
+                        messages.error(request, 'The password should not contain your first name, last name, or username.')
+                    else:
+                        form.save()
+                        messages.success(request, 'Your password has been set. You can now log in.', extra_tags='password_set_success')
+                        return redirect('login')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, error)
         else:
             form = SetPasswordForm(user)
-        return render(request, 'myapp/password_reset_confirm.html', {'form': form, 'uidb64': uidb64, 'token': token})
+        return render(request, 'myapp/password_reset_confirm.html', {
+            'form': form, 
+            'uidb64': uidb64, 
+            'token': token,
+            'user': user,
+        })
     else:
         messages.error(request, 'The reset link is no longer valid.')
         return redirect('password_reset')
+
+
 
 def password_reset_complete(request):
     messages.success(request, 'Your password has been reset successfully.')
