@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'anymail',  # Add Anymail to the installed apps
 ]
 
 MIDDLEWARE = [
@@ -49,7 +50,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-
             ],
         },
     },
@@ -108,14 +108,13 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = 'chambeopr@gmail.com'  # Your Gmail address
-EMAIL_HOST_PASSWORD = '13qeadzc!#QEADZC@WSX'  # Your Gmail password
-DEFAULT_FROM_EMAIL = 'chambeopr@gmail.com'
+# Email settings with Mailjet
+EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
+ANYMAIL = {
+    "MAILJET_API_KEY": "763233764bcb41296192734bbaaf6f37",
+    "MAILJET_SECRET_KEY": "67016a76156337e644177f6b4b6c7130",
+}
+DEFAULT_FROM_EMAIL = 'chambeopr@proton.me'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

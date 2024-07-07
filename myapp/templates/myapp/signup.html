@@ -11,19 +11,25 @@
         <form method="post" action="{% url 'signup' %}">
             {% csrf_token %}
             <div class="mb-3">
-                <input type="text" name="username" class="form-control" placeholder="Username" required>
+                <input type="text" name="username" class="form-control" placeholder="Username" value="{{ form.username.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
-                <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                <input type="text" name="first_name" class="form-control" placeholder="First Name" value="{{ form.first_name.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
-                <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                <input type="text" name="last_name" class="form-control" placeholder="Last Name" value="{{ form.last_name.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
-                <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+                <input type="email" name="email" class="form-control" placeholder="Email Address" value="{{ form.email.value|default_if_none:'' }}" required>
             </div>
             <div class="mb-3">
-                <input type="password" name="password1" class="form-control" placeholder="Password" required>
+                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Password" required>
+                <ul id="password-requirements" class="list-unstyled mt-2" style="display: none; font-size: 0.875em;">
+                    <li id="password-length"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">Minimum 8 characters</span></li>
+                    <li id="password-letter"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">At least 1 letter</span></li>
+                    <li id="password-number"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">At least 1 number</span></li>
+                    <li id="password-special"><i class="fas fa-times text-danger"></i> <span style="color: lightcoral;">At least 1 special character</span></li>
+                </ul>
             </div>
             <div class="mb-3">
                 <input type="password" name="password2" class="form-control" placeholder="Confirm Password" required>
@@ -35,4 +41,70 @@
         </form>
     </div>
 </div>
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('id_password1');
+    const requirements = document.getElementById('password-requirements');
+    const requirementItems = {
+        length: document.getElementById('password-length'),
+        letter: document.getElementById('password-letter'),
+        number: document.getElementById('password-number'),
+        special: document.getElementById('password-special')
+    };
+
+    passwordInput.addEventListener('focus', function() {
+        requirements.style.display = 'block';
+    });
+
+    passwordInput.addEventListener('input', function() {
+        const value = passwordInput.value;
+
+        // Length requirement
+        if (value.length >= 8) {
+            requirementItems.length.querySelector('i').classList.remove('fa-times', 'text-danger');
+            requirementItems.length.querySelector('i').classList.add('fa-check', 'text-success');
+            requirementItems.length.querySelector('span').style.color = 'lightgreen';
+        } else {
+            requirementItems.length.querySelector('i').classList.remove('fa-check', 'text-success');
+            requirementItems.length.querySelector('i').classList.add('fa-times', 'text-danger');
+            requirementItems.length.querySelector('span').style.color = 'lightcoral';
+        }
+
+        // Letter requirement
+        if (/[a-zA-Z]/.test(value)) {
+            requirementItems.letter.querySelector('i').classList.remove('fa-times', 'text-danger');
+            requirementItems.letter.querySelector('i').classList.add('fa-check', 'text-success');
+            requirementItems.letter.querySelector('span').style.color = 'lightgreen';
+        } else {
+            requirementItems.letter.querySelector('i').classList.remove('fa-check', 'text-success');
+            requirementItems.letter.querySelector('i').classList.add('fa-times', 'text-danger');
+            requirementItems.letter.querySelector('span').style.color = 'lightcoral';
+        }
+
+        // Number requirement
+        if (/\d/.test(value)) {
+            requirementItems.number.querySelector('i').classList.remove('fa-times', 'text-danger');
+            requirementItems.number.querySelector('i').classList.add('fa-check', 'text-success');
+            requirementItems.number.querySelector('span').style.color = 'lightgreen';
+        } else {
+            requirementItems.number.querySelector('i').classList.remove('fa-check', 'text-success');
+            requirementItems.number.querySelector('i').classList.add('fa-times', 'text-danger');
+            requirementItems.number.querySelector('span').style.color = 'lightcoral';
+        }
+
+        // Special character requirement
+        if (/[^a-zA-Z0-9]/.test(value)) {
+            requirementItems.special.querySelector('i').classList.remove('fa-times', 'text-danger');
+            requirementItems.special.querySelector('i').classList.add('fa-check', 'text-success');
+            requirementItems.special.querySelector('span').style.color = 'lightgreen';
+        } else {
+            requirementItems.special.querySelector('i').classList.remove('fa-check', 'text-success');
+            requirementItems.special.querySelector('i').classList.add('fa-times', 'text-danger');
+            requirementItems.special.querySelector('span').style.color = 'lightcoral';
+        }
+    });
+});
+</script>
 {% endblock %}

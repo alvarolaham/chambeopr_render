@@ -11,25 +11,36 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
 import logging
+from .forms import CustomUserCreationForm, PasswordResetCodeForm
+from django.utils import timezone
+from datetime import timedelta
+import random
+from django.db import models
 
 UserModel = get_user_model()
 logger = logging.getLogger(__name__)
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 def home(request):
     return render(request, 'myapp/home.html')
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            user.email = form.cleaned_data['email']
+            user.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('home')
         else:
             messages.error(request, "Error creating account. Please try again.")
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'myapp/signup.html', {'form': form})
 
 def login_view(request):
@@ -59,12 +70,15 @@ def delete_account(request):
 
 def home_services(request):
     services = [
-        "Landscaping", "Gardening", "Painting", "House & Airbnb Cleaning",
-        "Pest Control", "Roofing", "Interior Design", "Security Systems",
-        "Solar Panel Installation", "Swimming Pool Maintenance", "Babysitting/Nanny Services",
-        "Air Conditioning", "Construction & Remodeling", "Electrician", "Plumbing"
+        "Air Conditioning", "Babysitting/Nanny Services", "Construction & Remodeling", "Electrician", 
+        "Gardening", "House & Airbnb Cleaning", "Interior Design", "Landscaping", "Painting", "Pest Control", 
+        "Plumbing", "Roofing", "Security Systems", "Solar Panel Installation", "Swimming Pool Maintenance"
     ]
+    services.sort()  # Ensure services are in alphabetical order
     return render(request, "myapp/home_services.html", {"services": services})
+
+def generate_code():
+    return ''.join(random.choices('0123456789', k=6))
 
 def password_reset_request(request):
     if request.method == "POST":
@@ -74,39 +88,45 @@ def password_reset_request(request):
             associated_users = UserModel.objects.filter(email=email)
             if associated_users.exists():
                 for user in associated_users:
+                    code = generate_code()
+                    PasswordResetCode.objects.create(user=user, code=code)
                     subject = "Password Reset Requested"
-                    email_template_name = "myapp/password_reset_email.txt"
-                    c = {
-                        "email": user.email,
-                        'domain': request.META['HTTP_HOST'],
-                        'site_name': 'ChambeoPR',
-                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "user": user,
-                        'token': default_token_generator.make_token(user),
-                        'protocol': 'http',
-                    }
-                    email_content = render_to_string(email_template_name, c)
+                    message = f"Use this code to reset your password: {code}"
                     try:
-                        send_mail(subject, email_content, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
-                        logger.info(f"Password reset email sent to {user.email}")
+                        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+                        logger.info(f"Password reset code sent to {user.email}")
                     except Exception as e:
-                        logger.error(f"Failed to send password reset email to {user.email}. Error: {str(e)}")
+                        logger.error(f"Failed to send password reset code to {user.email}. Error: {str(e)}")
             else:
-                # Send a dummy email for non-existent users
                 logger.info(f"Password reset attempted for non-existent email: {email}")
                 subject = "Password Reset Requested"
-                email_content = "A password reset was requested for this email, but no account exists."
+                message = "A password reset was requested for this email, but no account exists."
                 try:
-                    send_mail(subject, email_content, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
                     logger.info(f"Dummy password reset email sent to non-existent user: {email}")
                 except Exception as e:
                     logger.error(f"Failed to send dummy password reset email to {email}. Error: {str(e)}")
-            
-            messages.success(request, 'If an account with this email exists, a password reset link has been sent.')
-            return redirect('password_reset_done')
+
+            messages.success(request, 'If an account with this email exists, a password reset code has been sent.')
+            return redirect('password_reset_code')
     else:
         form = PasswordResetForm()
     return render(request, 'myapp/password_reset.html', {'form': form})
+
+def password_reset_code(request):
+    if request.method == "POST":
+        form = PasswordResetCodeForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data["code"]
+            try:
+                reset_code = PasswordResetCode.objects.get(code=code, created_at__gte=timezone.now() - timedelta(minutes=3))
+                return redirect('password_reset_confirm', uidb64=urlsafe_base64_encode(force_bytes(reset_code.user.pk)), token=default_token_generator.make_token(reset_code.user))
+            except PasswordResetCode.DoesNotExist:
+                messages.error(request, 'Invalid or expired code. Please try again.')
+                return redirect('password_reset_code')
+    else:
+        form = PasswordResetCodeForm()
+    return render(request, 'myapp/password_reset_code.html', {'form': form})
 
 def password_reset_confirm(request, uidb64=None, token=None):
     try:
@@ -124,11 +144,10 @@ def password_reset_confirm(request, uidb64=None, token=None):
                 return redirect('login')
         else:
             form = SetPasswordForm(user)
+        return render(request, 'myapp/password_reset_confirm.html', {'form': form, 'uidb64': uidb64, 'token': token})
     else:
         messages.error(request, 'The reset link is no longer valid.')
         return redirect('password_reset')
-
-    return render(request, 'myapp/password_reset_confirm.html', {'form': form})
 
 def password_reset_complete(request):
     messages.success(request, 'Your password has been reset successfully.')
