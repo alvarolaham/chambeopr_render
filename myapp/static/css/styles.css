@@ -248,7 +248,7 @@ footer p {
 }
 
 .breadcrumb-item a {
-    color: #333;
+    color: #4CAF50;
     text-decoration: none;
 }
 
@@ -259,7 +259,11 @@ footer p {
 }
 
 .breadcrumb-item i {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.breadcrumb-item-text {
+    color: #4CAF50 !important;
 }
 
 @media (max-width: 1200px) {
