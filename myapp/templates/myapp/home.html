@@ -83,8 +83,12 @@
     <script>
         $(document).ready(function() {
             let typingTimer;
-            const doneTypingInterval = 200; // milliseconds
-        
+            const doneTypingInterval = 0; // milliseconds
+            
+            $('#search-input').on('click', function() {
+                performSearch();
+            });
+
             $('#search-input').on('input', function() {
                 clearTimeout(typingTimer);
                 if ($('#search-input').val()) {
@@ -111,10 +115,11 @@
                 let resultsHtml = '';
                 let hasResults = false;
                 for (const [category, services] of Object.entries(data.filtered_services)) {
-                    const filteredServices = services.filter(service => regex.test(service));
+                    const filteredServices = services.filter(service => regex.test(service) || !$('#search-input').val()); // Show all if no input
                     if (filteredServices.length > 0) {
                         hasResults = true;
-                        resultsHtml += `<div class="search-filter-result category">`;
+                        const categoryUrl = getCategoryUrl(category); // Get the URL for the category
+                        resultsHtml += `<div class="search-filter-result category" onclick="window.location.href='${categoryUrl}'">`;
                         resultsHtml += `<span>${category.replace(/_/g, ' ').toUpperCase()}</span>`;
                         resultsHtml += '</div>';
                         filteredServices.forEach(service => {
@@ -137,6 +142,19 @@
                 }
             });
         });
+
+        // Function to get the URL for a given category
+        function getCategoryUrl(category) {
+            const categoryUrls = {
+                'home_services': '{% url "home_services" %}',
+                'car_and_vehicle_services': '{% url "car_and_vehicle_services" %}',
+                'pet_services': '{% url "pet_services" %}',
+                'moving_services': '{% url "moving_services" %}',
+                'professional_services': '{% url "professional_services" %}',
+                'events_services': '{% url "events_services" %}'
+            };
+            return categoryUrls[category] || '#';
+        }
     </script>
 </body>
 </html>
