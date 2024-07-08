@@ -17,9 +17,12 @@
         {% block content %}
         <div class="hero text-center">
             <h1>Book services fast</h1>
-            <div class="search-bar">
-                <input type="text" placeholder="I am looking for...">
-                <button><i class="fas fa-search"></i></button>
+            <div class="search-container">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="I am looking for...">
+                    <button id="search-button"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="search-results" class="search-filter-results-column"></div>
             </div>
         </div>
         <div class="service-grid mt-1">
@@ -76,5 +79,64 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let typingTimer;
+            const doneTypingInterval = 200; // milliseconds
+        
+            $('#search-input').on('input', function() {
+                clearTimeout(typingTimer);
+                if ($('#search-input').val()) {
+                    typingTimer = setTimeout(performSearch, doneTypingInterval);
+                } else {
+                    $('#search-results').hide();
+                }
+            });
+        
+            function performSearch() {
+                const query = $('#search-input').val().toLowerCase();
+                const regex = new RegExp('^' + query, 'i'); // Match from the start
+                $.ajax({
+                    url: '{% url "search_services" %}',
+                    data: {'q': query},
+                    dataType: 'json',
+                    success: function(data) {
+                        displayResults(data, regex);
+                    }
+                });
+            }
+        
+            function displayResults(data, regex) {
+                let resultsHtml = '';
+                let hasResults = false;
+                for (const [category, services] of Object.entries(data.filtered_services)) {
+                    const filteredServices = services.filter(service => regex.test(service));
+                    if (filteredServices.length > 0) {
+                        hasResults = true;
+                        resultsHtml += `<div class="search-filter-result category">`;
+                        resultsHtml += `<span>${category.replace(/_/g, ' ').toUpperCase()}</span>`;
+                        resultsHtml += '</div>';
+                        filteredServices.forEach(service => {
+                            resultsHtml += `<div class="search-filter-result">`;
+                            resultsHtml += `<span>${service}</span>`;
+                            resultsHtml += '</div>';
+                        });
+                    }
+                }
+                if (!hasResults) {
+                    resultsHtml = '<div class="search-filter-result no-results">No matches found</div>';
+                }
+                $('#search-results').html(resultsHtml).show();
+            }
+        
+            // Close search results when clicking outside
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.search-container').length) {
+                    $('#search-results').hide();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

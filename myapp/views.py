@@ -21,6 +21,7 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 from .models import MyUser, PasswordResetCode
+from django.http import JsonResponse
 
 MyUser = get_user_model()
 logger = logging.getLogger(__name__)
@@ -71,7 +72,11 @@ SERVICES = {
 }
 
 def home(request):
-    return render(request, "myapp/home.html")
+    context = {
+        "services": SERVICES
+    }
+    return render(request, "myapp/home.html", context)
+
 
 def signup(request):
     if request.method == "POST":
@@ -143,17 +148,18 @@ def events_services(request):
     services.sort()
     return render(request, "myapp/services/events_services.html", {"services": services})
 
-def search_services(request):
-    query = request.GET.get('q')
-    if query:
-        filtered_services = {
-            category: [service for service in services if query.lower() in service.lower()]
-            for category, services in SERVICES.items()
-        }
-    else:
-        filtered_services = {}
 
-    return render(request, "myapp/search_results.html", {"query": query, "filtered_services": filtered_services})
+
+
+def search_services(request):
+    query = request.GET.get('q', '').lower()
+    filtered_services = {
+        category: [service for service in services if query in service.lower()]
+        for category, services in SERVICES.items()
+    }
+    filtered_services = {k: v for k, v in filtered_services.items() if v}
+    
+    return JsonResponse({'filtered_services': filtered_services})
 
 def generate_code():
     return "".join(random.choices("0123456789", k=6))
