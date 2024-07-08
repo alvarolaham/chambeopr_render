@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+{% comment %} moving_services.html {% endcomment %}
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChambeoPR - Moving Services</title>
+    {% load static %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+</head>
+<body>
+    {% include "myapp/navbar.html" %}
+    <div class="container mt-4">
+        {% include "myapp/breadcrumb.html" with current_page="Moving Services" %}
+        <div class="services">
+            <ul class="list-unstyled">
+                {% for service in services %}
+                    <li class="pb-2">
+                        <a href="#" class="text-decoration-none">{{ service }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% include "myapp/footer.html" %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+</body>
+</html>

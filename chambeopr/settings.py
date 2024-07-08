@@ -1,4 +1,10 @@
 from pathlib import Path
+import environ
+
+# Initialize environment variables
+env = environ.Env()
+# Add a print statement to confirm the location of the .env file
+environ.Env.read_env(env_file=Path(__file__).resolve().parent.parent / '.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-g!d&(f-fd32)9ov3e4a&clh=ej-!_^je@ct8%=t_dzv7x(x#ty"
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -108,14 +114,13 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
-# Email settings with Mailjet
+# Email settings with Anymail (Mailjet)
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 ANYMAIL = {
-    "MAILJET_API_KEY": "763233764bcb41296192734bbaaf6f37",
-    "MAILJET_SECRET_KEY": "67016a76156337e644177f6b4b6c7130",
+    "MAILJET_API_KEY": env("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY"),
 }
-DEFAULT_FROM_EMAIL = "chambeopr@proton.me"
-
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="chambeopr@proton.me")
 
 AUTH_USER_MODEL = "myapp.MyUser"
 
@@ -124,4 +129,19 @@ AUTH_USER_MODEL = "myapp.MyUser"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=False)  # Set to True if using HTTPS
+
+# Template paths configuration
+TEMPLATE_PATHS = {
+    'signup': 'myapp/accounts/signup.html',
+    'login': 'myapp/accounts/login.html',
+    'password_reset': 'myapp/accounts/password_reset.html',
+    'password_reset_code': 'myapp/accounts/password_reset_code.html',
+    'password_reset_confirm': 'myapp/accounts/password_reset_confirm.html',
+    'password_reset_complete': 'myapp/accounts/password_reset_complete.html',
+    'password_reset_done': 'myapp/accounts/password_reset_done.html',
+    'password_reset_email': 'myapp/accounts/password_reset_email.txt',
+    'delete_account': 'myapp/accounts/delete_account.html',
+    'home_services': 'myapp/services/home_services.html',  # New path for home_services
+}
+

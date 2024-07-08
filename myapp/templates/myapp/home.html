@@ -29,36 +29,36 @@
                 </div>
                 <h3 class="services-text">Home Services</h3>
             </a>
-            <div class="service-item">
+            <a href="{% url 'car_and_vehicle_services' %}" class="service-item no-underline">
                 <div class="service-icon">
                     <i class="fas fa-car"></i>
                 </div>
                 <h3 class="services-text">Car & Vehicle</h3>
-            </div>
-            <div class="service-item">
+            </a>
+            <a href="{% url 'pet_services' %}" class="service-item no-underline">
                 <div class="service-icon">
                     <i class="fas fa-paw"></i>
                 </div>
                 <h3 class="services-text">Pets</h3>
-            </div>
-            <div class="service-item">
+            </a>
+            <a href="{% url 'moving_services' %}" class="service-item no-underline">
                 <div class="service-icon">
                     <i class="fas fa-truck"></i>
                 </div>
                 <h3 class="services-text">Moving</h3>
-            </div>
-            <div class="service-item">
+            </a>
+            <a href="{% url 'professional_services' %}" class="service-item no-underline">
                 <div class="service-icon">
                     <i class="fas fa-briefcase"></i>
                 </div>
                 <h3 class="services-text">Professional</h3>
-            </div>
-            <div class="service-item">
+            </a>
+            <a href="{% url 'events_services' %}" class="service-item no-underline">
                 <div class="service-icon">
                     <i class="fas fa-birthday-cake"></i>
                 </div>
                 <h3 class="services-text">Events</h3>
-            </div>
+            </a>
         </div>
         {% endblock %}
         {% if messages %}

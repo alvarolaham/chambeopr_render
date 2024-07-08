@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib.auth import login, logout, get_user_model, authenticate
 from django.contrib.auth.forms import (
     UserCreationForm,
@@ -8,7 +9,6 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -20,16 +20,58 @@ from .forms import CustomUserCreationForm, PasswordResetCodeForm
 from django.utils import timezone
 from datetime import timedelta
 import random
-from django.db import models
 from .models import MyUser, PasswordResetCode
 
 MyUser = get_user_model()
 logger = logging.getLogger(__name__)
 
+SERVICES = {
+    "home_services": [
+        "Air Conditioning",
+        "Babysitting/Nanny Services",
+        "Construction & Remodeling",
+        "Electrician",
+        "Gardening",
+        "House & Airbnb Cleaning",
+        "Interior Design",
+        "Landscaping",
+        "Painting",
+        "Pest Control",
+        "Plumbing",
+        "Roofing",
+        "Security Systems",
+        "Solar Panel Installation",
+        "Swimming Pool Maintenance",
+    ],
+    "car_and_vehicle_services": [
+        "Car Towing Services",
+        "Car Wash and Detailing",
+        "Mechanics",
+    ],
+    "pet_services": [
+        "Pet boarding",
+        "Pet grooming",
+        "Pet training",
+    ],
+    "moving_services": [
+        "Local Moving",
+        "Long Distance Moving",
+        "Storage Solutions",
+    ],
+    "professional_services": [
+        "Accounting",
+        "Legal Services",
+        "Consulting",
+    ],
+    "events_services": [
+        "Event Planning",
+        "Catering",
+        "Entertainment",
+    ],
+}
 
 def home(request):
     return render(request, "myapp/home.html")
-
 
 def signup(request):
     if request.method == "POST":
@@ -46,8 +88,7 @@ def signup(request):
                     messages.error(request, error)
     else:
         form = CustomUserCreationForm()
-    return render(request, "myapp/signup.html", {"form": form})
-
+    return render(request, "myapp/accounts/signup.html", {"form": form})
 
 def login_view(request):
     if request.method == "POST":
@@ -59,47 +100,63 @@ def login_view(request):
             return redirect("home")
         else:
             messages.error(request, "Invalid login credentials. Please try again.")
-    return render(request, "myapp/login.html")
-
+    return render(request, "myapp/accounts/login.html")
 
 def logout_view(request):
     logout(request)
     return redirect("home")
-
 
 @login_required
 def delete_account(request):
     if request.method == "POST":
         request.user.delete()
         return redirect("home")
-    return render(request, "myapp/delete_account.html")
-
+    return render(request, "myapp/accounts/delete_account.html")
 
 def home_services(request):
-    services = [
-        "Air Conditioning",
-        "Babysitting/Nanny Services",
-        "Construction & Remodeling",
-        "Electrician",
-        "Gardening",
-        "House & Airbnb Cleaning",
-        "Interior Design",
-        "Landscaping",
-        "Painting",
-        "Pest Control",
-        "Plumbing",
-        "Roofing",
-        "Security Systems",
-        "Solar Panel Installation",
-        "Swimming Pool Maintenance",
-    ]
-    services.sort()  # Ensure services are in alphabetical order
-    return render(request, "myapp/home_services.html", {"services": services})
+    services = SERVICES["home_services"]
+    services.sort()
+    return render(request, "myapp/services/home_services.html", {"services": services})
 
+def car_and_vehicle_services(request):
+    services = SERVICES["car_and_vehicle_services"]
+    services.sort()
+    return render(request, "myapp/services/car_and_vehicle_services.html", {"services": services})
+
+def pet_services(request):
+    services = SERVICES["pet_services"]
+    services.sort()
+    return render(request, "myapp/services/pet_services.html", {"services": services})
+
+def moving_services(request):
+    services = SERVICES["moving_services"]
+    services.sort()
+    return render(request, "myapp/services/moving_services.html", {"services": services})
+
+def professional_services(request):
+    services = SERVICES["professional_services"]
+    services.sort()
+    return render(request, "myapp/services/professional_services.html", {"services": services})
+
+def events_services(request):
+    services = SERVICES["events_services"]
+    services.sort()
+    return render(request, "myapp/services/events_services.html", {"services": services})
+
+def search_services(request):
+    query = request.GET.get('q')
+    if query:
+        filtered_services = {
+            category: [service for service in services if query.lower() in service.lower()]
+            for category, services in SERVICES.items()
+        }
+    else:
+        filtered_services = {}
+
+    return render(request, "myapp/search_results.html", {"query": query, "filtered_services": filtered_services})
 
 def generate_code():
     return "".join(random.choices("0123456789", k=6))
-
 
 def password_reset_request(request):
     if request.method == "POST":
@@ -130,33 +187,14 @@ def password_reset_request(request):
                             f"Failed to send password reset code to {user.email}. Error: {str(e)}"
                         )
             else:
-                logger.info(f"Password reset attempted for non-existent email: {email}")
-                subject = "Password Reset Requested"
-                message = "A password reset was requested for this email, but no account exists."
-                try:
-                    send_mail(
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [email],
-                        fail_silently=False,
-                    )
-                    logger.info(
-                        f"Dummy password reset email sent to non-existent user: {email}"
-                    )
-                    messages.success(
-                        request, f"A password reset code has been sent to {email}"
-                    )
-                except Exception as e:
-                    logger.error(
-                        f"Failed to send dummy password reset email to {email}. Error: {str(e)}"
-                    )
+                messages.error(
+                    request, "No account found with the provided email address."
+                )
 
             return redirect("password_reset_code")
     else:
         form = PasswordResetForm()
-    return render(request, "myapp/password_reset.html", {"form": form})
-
+    return render(request, "myapp/accounts/password_reset.html", {"form": form})
 
 def password_reset_code(request):
     if request.method == "POST":
@@ -177,8 +215,7 @@ def password_reset_code(request):
                 return redirect("password_reset_code")
     else:
         form = PasswordResetCodeForm()
-    return render(request, "myapp/password_reset_code.html", {"form": form})
-
+    return render(request, "myapp/accounts/password_reset_code.html", {"form": form})
 
 def password_reset_confirm(request, uidb64=None, token=None):
     try:
@@ -223,7 +260,7 @@ def password_reset_confirm(request, uidb64=None, token=None):
             form = SetPasswordForm(user)
         return render(
             request,
-            "myapp/password_reset_confirm.html",
+            "myapp/accounts/password_reset_confirm.html",
             {
                 "form": form,
                 "uidb64": uidb64,
@@ -234,7 +271,6 @@ def password_reset_confirm(request, uidb64=None, token=None):
     else:
         messages.error(request, "The reset link is no longer valid.")
         return redirect("password_reset")
-
 
 def password_reset_complete(request):
     messages.success(request, "Your password has been reset successfully.")
