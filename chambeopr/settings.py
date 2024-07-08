@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'anymail',  # Add Anymail to the installed apps
+    "anymail",  # Add Anymail to the installed apps
 ]
 
 MIDDLEWARE = [
@@ -92,30 +92,36 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "myapp" / "static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Social Authentication
-LOGIN_URL = 'login'
-LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = "login"
+LOGOUT_URL = "logout"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
+    "social_core.backends.google.GoogleOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
 )
 
 # Email settings with Mailjet
-EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 ANYMAIL = {
     "MAILJET_API_KEY": "763233764bcb41296192734bbaaf6f37",
     "MAILJET_SECRET_KEY": "67016a76156337e644177f6b4b6c7130",
 }
-DEFAULT_FROM_EMAIL = 'chambeopr@proton.me'
+DEFAULT_FROM_EMAIL = "chambeopr@proton.me"
+
+
+AUTH_USER_MODEL = "myapp.MyUser"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
