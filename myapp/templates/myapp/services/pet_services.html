@@ -12,16 +12,18 @@
 </head>
 <body>
     {% include "myapp/navbar.html" %}
-    <div class="container mt-4">
-        {% include "myapp/breadcrumb.html" with current_page="Pet Services" %}
-        <div class="services">
-            <ul class="list-unstyled">
-                {% for service in services %}
-                    <li class="pb-2">
-                        <a href="#" class="text-decoration-none">{{ service }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+    <div class="main-content">
+        <div class="container mt-4">
+            {% include "myapp/breadcrumb.html" with current_page="Pet Services" %}
+            <div class="services">
+                <ul class="list-unstyled">
+                    {% for service in services %}
+                        <li class="pb-2">
+                            <a href="#" class="text-decoration-none">{{ service }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
     {% include "myapp/footer.html" %}

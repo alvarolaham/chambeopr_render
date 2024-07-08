@@ -1,5 +1,4 @@
-html,
-body {
+html, body {
   height: 100%;
 }
 
@@ -11,6 +10,12 @@ body {
   padding: 0;
   color: #333;
   line-height: 1.6;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
@@ -440,8 +445,6 @@ footer p {
   z-index: 1000;
   margin-top: 10px;
 }
-
-
 
 .search-filter-result {
   padding: 10px;
