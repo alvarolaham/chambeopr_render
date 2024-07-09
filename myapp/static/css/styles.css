@@ -1,6 +1,9 @@
 html, body {
   height: 100%;
+  background-color: #ffffff; /* Explicitly set background color */
+  color: #333; /* Ensure text color is set */
 }
+
 
 body {
   display: flex;
