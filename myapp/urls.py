@@ -7,6 +7,8 @@ from myapp.views import (
     search_services
 )
 from django.views.generic.base import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', home, name='home'),
@@ -26,4 +28,4 @@ urlpatterns = [
     path('password_reset/done/', TemplateView.as_view(template_name="myapp/accounts/password_reset_done.html"), name='password_reset_done'),
     path('reset/done/', password_reset_complete, name='password_reset_complete'),
     path('search/', search_services, name='search_services'),  # Added search URL pattern
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
