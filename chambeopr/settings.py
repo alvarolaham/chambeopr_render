@@ -1,16 +1,23 @@
+import os
 from pathlib import Path
 import environ
 
 # Initialize environment variables
 env = environ.Env()
-environ.Env.read_env(env_file=Path(__file__).resolve().parent.parent / '.env')
+environ.Env.read_env()
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
-DEBUG = True
-ALLOWED_HOSTS = ['chambeo-pr.onrender.com', 'localhost', '127.0.0.1']
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+
+# Application definition
 INSTALLED_APPS = [
     "myapp",
     "social_django",
@@ -25,7 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Added Whitenoise Middleware
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -54,40 +61,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "chambeopr.wsgi.application"
 
+# Database
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": env.db("DATABASE_URL")
 }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
+# Internationalization
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "myapp" / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "myapp" / "static",]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # Updated static files storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Authentication settings
 LOGIN_URL = "login"
 LOGOUT_URL = "logout"
 LOGIN_REDIRECT_URL = "/"
@@ -97,18 +96,19 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
+# Email settings
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 ANYMAIL = {
     "MAILJET_API_KEY": env("MAILJET_API_KEY"),
     "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY"),
 }
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="chambeopr@proton.me")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 AUTH_USER_MODEL = "myapp.MyUser"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=False)
+SESSION_COOKIE_SECURE = True
 
 TEMPLATE_PATHS = {
     'signup': 'myapp/accounts/signup.html',
@@ -123,8 +123,9 @@ TEMPLATE_PATHS = {
     'home_services': 'myapp/services/home_services.html',
 }
 
+# Security settings
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
