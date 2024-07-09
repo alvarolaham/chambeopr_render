@@ -134,6 +134,3 @@ cython_debug/
 # Ignore OS generated files
 .DS_Store
 Thumbs.db
-
-# Ignore static and media files
-/media/
