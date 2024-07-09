@@ -16,9 +16,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -142,6 +142,12 @@ TEMPLATE_PATHS = {
     'password_reset_done': 'myapp/accounts/password_reset_done.html',
     'password_reset_email': 'myapp/accounts/password_reset_email.txt',
     'delete_account': 'myapp/accounts/delete_account.html',
-    'home_services': 'myapp/services/home_services.html',  # New path for home_services
+    'home_services': 'myapp/services/home_services.html',
 }
 
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
