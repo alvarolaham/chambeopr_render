@@ -96,6 +96,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# settings.py
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 STATIC_URL = "/static/"
@@ -103,6 +105,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "myapp" / "static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Ensure that you also have the following settings
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 
 # Social Authentication
 LOGIN_URL = "login"
