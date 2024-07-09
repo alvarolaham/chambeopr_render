@@ -130,7 +130,6 @@ cython_debug/
 .vscode/
 
 # Ignore static and media files
-/staticfiles/
 /media/
 
 # Ignore IDE/editor specific files
