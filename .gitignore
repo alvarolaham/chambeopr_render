@@ -55,7 +55,6 @@ coverage.xml
 *.log
 local_settings.py
 db.sqlite3
-*/migrations/*
 
 # Flask stuff:
 instance/
@@ -136,5 +135,5 @@ cython_debug/
 .DS_Store
 Thumbs.db
 
-# Ignore virtual environment directory
-env/
+# Ignore static and media files
+/media/

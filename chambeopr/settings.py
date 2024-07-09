@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['chambeo-pr.onrender.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     "myapp",
