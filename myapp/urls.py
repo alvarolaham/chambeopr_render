@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from myapp.views import (
     home, signup, login_view, logout_view, delete_account,
@@ -7,8 +9,6 @@ from myapp.views import (
     search_services
 )
 from django.views.generic.base import TemplateView
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     path('', home, name='home'),
