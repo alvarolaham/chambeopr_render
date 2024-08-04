@@ -1,0 +1,209 @@
+body.dashboard {
+    background-color: #f7f7f7;
+    color: #484848;
+    font-family:
+      "Circular",
+      -apple-system,
+      BlinkMacSystemFont,
+      Roboto,
+      Helvetica Neue,
+      sans-serif;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .dashboard-profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 32px;
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-profile-picture-container {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dashboard-profile-picture {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .dashboard-profile-icon {
+    font-size: 100px;
+    color: #ccc;
+  }
+
+  .dashboard-profile-info h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .dashboard-edit-picture-btn {
+    background: none;
+    border: none;
+    color: #008489;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .dashboard-profile-content {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+
+  .dashboard-section {
+    margin-bottom: 24px;
+  }
+
+  .dashboard-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #484848;
+  }
+
+  .dashboard-btn {
+    background-color: #008489;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  .dashboard-btn:hover {
+    background-color: #006c70;
+  }
+
+  .dashboard-modal-content {
+    border-radius: 12px;
+  }
+
+  .dashboard-modal-header {
+    background-color: #fff;
+    border-bottom: 1px solid #ebebeb;
+    padding: 16px 24px;
+  }
+
+  .dashboard-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #484848;
+  }
+
+  .dashboard-modal-body {
+    padding: 16px 24px;
+  }
+
+  .dashboard-modal-footer {
+    border-top: 1px solid #ebebeb;
+    padding: 16px 24px;
+  }
+
+  .dashboard-form-control {
+    border: 1px solid #ebebeb;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .dashboard-form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .dashboard-info-section {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .dashboard-info {
+    width: 48%;
+  }
+
+  .dashboard-info p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .dashboard-info strong {
+    color: #484848;
+  }
+
+  .dashboard-publications,
+  .dashboard-reviews {
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-bottom: 32px;
+  }
+
+  .dashboard-publication,
+  .dashboard-review {
+    display: flex;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-publication img,
+  .dashboard-review img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    margin-right: 16px;
+    object-fit: cover;
+  }
+
+  .dashboard-publication-content,
+  .dashboard-review-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-publication-title,
+  .dashboard-review-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .dashboard-publication-meta,
+  .dashboard-review-meta {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .dashboard-publication-text,
+  .dashboard-review-text {
+    font-size: 14px;
+    color: #666;
+  }

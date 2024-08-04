@@ -1,0 +1,106 @@
+:root {
+  /* General colors */
+  --link-color: #333;
+  --link-hover-color: #ff2e00;
+
+  /* Navbar colors */
+  --logout-color: #f00;
+  --logged-in-color: #4caf50;
+}
+
+.navbar {
+  z-index: 1050;
+}
+
+.navbar .nav-link {
+  color: var(--link-color);
+}
+
+.navbar .nav-link:hover {
+  color: var(--link-hover-color);
+}
+
+.navbar .nav-link.logout {
+  color: var(--logout-color) !important;
+  font-weight: bold;
+}
+
+.navbar .nav-link.logged-in {
+  font-weight: bold;
+  color: var(--logged-in-color) !important;
+}
+
+.navbar .nav-link.dropdown-toggle::after {
+  display: none;
+}
+
+.navbar .dropdown-menu .dropdown-item:active {
+  background-color: var(--link-hover-color);
+  color: #fff; /* Change text color to white for better contrast */
+}
+
+.navbar-nav .nav-item.dropdown .nav-link .nav-user-pill {
+  border: 1px solid #ccc; /* Adjust the initial border color as needed */
+  transition: border-color 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-item.dropdown .nav-link:focus .nav-user-pill,
+.navbar-nav .nav-item.dropdown .nav-link:focus-visible .nav-user-pill {
+  outline: none;
+  border-color: var(--link-hover-color);
+  border-width: 1px; /* Optionally increase border width for more emphasis */
+}
+
+.navbar-nav .nav-item.dropdown .nav-link:focus,
+.navbar-nav .nav-item.dropdown .nav-link:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.navbar .nav-item {
+  list-style: none;
+}
+
+.nav-user-pill {
+  border: 1px solid #ccc;
+  border-radius: 50px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav-hamburger-icon {
+  margin-right: 10px;
+}
+
+.nav-profile-pic img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.nav-profile-pic i {
+  font-size: 30px;
+  color: #ccc;
+}
+
+.logout-btn {
+  color: var(--logout-color);
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .navbar-brand img {
+    width: 30vw;
+    max-width: 150px;
+  }
+}
+
+.signup-button {
+  background-color: var(--link-hover-color) !important;
+}
+
+.login-button {
+  background-color: var(--link-hover-color) !important;
+}

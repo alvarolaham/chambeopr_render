@@ -1,12 +1,16 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+
 # chambeopr_render
-Chambeopr
-=======
+
 # Chambeopr
+
+# Chambeopr
+
 An on-demand platform to connect users with local service providers in Puerto Rico.
->>>>>>> 0e69d57 (Initial commit)
-=======
+
+> > > > > > > # 0e69d57 (Initial commit)
+
 # ChambeoPR
 
 An on-demand platform to connect users with local service providers in Puerto Rico.
@@ -38,4 +42,5 @@ ChambeoPR is a Django-based web application designed to facilitate the search, c
    ```bash
    git clone https://github.com/your-username/chambeopr.git
    cd chambeopr
->>>>>>> 0a29e49 (Update README.md)
+   >>>>>>> 0a29e49 (Update README.md)
+   ```

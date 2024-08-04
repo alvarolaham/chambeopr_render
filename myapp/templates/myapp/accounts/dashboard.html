@@ -1,0 +1,219 @@
+{% extends 'myapp/layout.html' %}
+{% load static %}
+{% block content %}
+
+<div class="dashboard-container">
+  <div class="dashboard-profile-header">
+    <div class="dashboard-profile-picture-container" id="dashboard-profile-pic-container">
+      {% if user.profile.profile_picture %}
+      <img src="{{ user.profile.profile_picture.url }}" class="dashboard-profile-picture" alt="Profile Picture" id="dashboard-profile-pic" />
+      {% else %}
+      <i class="fas fa-user-circle dashboard-profile-icon user-icon" id="dashboard-profile-icon"></i>
+      {% endif %}
+    </div>
+    <div class="dashboard-profile-info">
+      <h1>{{ user.profile.name }}</h1>
+      <p>{{ user.profile.title }}</p>
+      <button class="dashboard-edit-picture-btn" data-bs-toggle="modal" data-bs-target="#uploadProfilePictureModal">Edit profile picture</button>
+    </div>
+  </div>
+
+  <div class="dashboard-profile-content">
+    <div class="dashboard-info-section">
+      <div class="dashboard-info">
+        <h2>Specialties</h2>
+        <p>{{ user.profile.specialties|default:"Not set" }}</p>
+      </div>
+      <div class="dashboard-info">
+        <h2>Qualifications</h2>
+        <p>{{ user.profile.qualifications|default:"Not set" }}</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-section">
+      <div class="dashboard-info">
+        <h2>Issues</h2>
+        <p>{{ user.profile.issues|default:"Not set" }}</p>
+      </div>
+      <div class="dashboard-info">
+        <h2>Experience</h2>
+        <p>{{ user.profile.experience|default:"Not set" }}</p>
+      </div>
+    </div>
+
+    <div class="dashboard-section">
+      <h2>About</h2>
+      <p>{{ user.profile.about|default:"Not set" }}</p>
+    </div>
+
+    <div class="dashboard-section">
+      <h2>Office</h2>
+      {% if user.profile.office_picture %}
+      <img src="{{ user.profile.office_picture.url }}" class="img-fluid rounded" alt="Office Picture" />
+      {% else %}
+      <p>No office picture available</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="dashboard-publications">
+    <h2>Publications</h2>
+    {% for publication in publications %}
+    <div class="dashboard-publication">
+      <img src="{{ publication.image_url }}" alt="Publication Image" />
+      <div class="dashboard-publication-content">
+        <div class="dashboard-publication-title">{{ publication.title }}</div>
+        <div class="dashboard-publication-meta">{{ publication.author }} - {{ publication.date }}</div>
+        <div class="dashboard-publication-text">{{ publication.description }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="dashboard-reviews">
+    <h2>Reviews</h2>
+    {% for review in reviews %}
+    <div class="dashboard-review">
+      <img src="{{ review.reviewer_image_url }}" alt="Reviewer Image" />
+      <div class="dashboard-review-content">
+        <div class="dashboard-review-title">{{ review.reviewer_name }}</div>
+        <div class="dashboard-review-meta">{{ review.rating }} - {{ review.date }}</div>
+        <div class="dashboard-review-text">{{ review.text }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="dashboard-profile-content">
+    <div class="dashboard-section" id="currentRates">
+      <h2>Current Rates</h2>
+      {% for rate in rates %}
+      <div class="mb-2">
+        <strong>{{ rate.service_name }}:</strong> ${{ rate.amount }}
+      </div>
+      {% endfor %}
+    </div>
+    <button id="updateRatesBtn" class="dashboard-btn">Update Rates</button>
+
+    <div class="dashboard-section" id="currentAvailability">
+      <h2>Availability</h2>
+      <p>{{ availability|default:"Not set" }}</p>
+    </div>
+    <button id="updateAvailabilityBtn" class="dashboard-btn">Update Availability</button>
+
+    <div class="dashboard-section" id="currentServices">
+      <h2>Your Services</h2>
+      <ul>
+        {% for service in services %}
+        <li>{{ service.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <button id="updateServicesBtn" class="dashboard-btn">Update Services</button>
+  </div>
+</div>
+
+<!-- Modal structures remain the same -->
+<!-- Upload Profile Picture Modal -->
+<div class="modal fade" id="uploadProfilePictureModal" tabindex="-1" aria-labelledby="uploadProfilePictureModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content dashboard-modal-content">
+      <div class="modal-header dashboard-modal-header">
+        <h5 class="modal-title dashboard-modal-title" id="uploadProfilePictureModalLabel">Upload Profile Picture</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body dashboard-modal-body">
+        <form id="profilePictureForm" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_profile_picture" class="dashboard-form-label">Choose a profile picture</label>
+            <input type="file" class="dashboard-form-control" id="id_profile_picture" name="profile_picture" accept="image/*" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer dashboard-modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="dashboard-btn" id="saveProfilePictureBtn">Save changes</button>
+        <button type="button" class="dashboard-btn btn-danger" id="deleteProfilePictureBtn" style="display: none">Delete Profile Picture</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Rates Modal -->
+<div class="modal fade" id="updateRatesModal" tabindex="-1" aria-labelledby="updateRatesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content dashboard-modal-content">
+      <div class="modal-header dashboard-modal-header">
+        <h5 class="modal-title dashboard-modal-title" id="updateRatesModalLabel">Update Your Rates</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body dashboard-modal-body">
+        <!-- Service rates will be dynamically added here -->
+      </div>
+      <div class="modal-footer dashboard-modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="dashboard-btn" id="saveRatesBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Availability Modal -->
+<div class="modal fade" id="updateAvailabilityModal" tabindex="-1" aria-labelledby="updateAvailabilityModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content dashboard-modal-content">
+      <div class="modal-header dashboard-modal-header">
+        <h5 class="modal-title dashboard-modal-title" id="updateAvailabilityModalLabel">Update Your Availability</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body dashboard-modal-body">
+        <textarea id="availabilityText" class="dashboard-form-control" rows="4" maxlength="100"></textarea>
+        <div class="text-end mt-2">
+          <small id="charCount">0/100</small>
+        </div>
+      </div>
+      <div class="modal-footer dashboard-modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="dashboard-btn" id="saveAvailabilityBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Services Modal -->
+<div class="modal fade" id="updateServicesModal" tabindex="-1" aria-labelledby="updateServicesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content dashboard-modal-content">
+      <div class="modal-header dashboard-modal-header">
+        <h5 class="modal-title dashboard-modal-title" id="updateServicesModalLabel">Update Your Services</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body dashboard-modal-body">
+        <!-- Services will be dynamically added here -->
+      </div>
+      <div class="modal-footer dashboard-modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="dashboard-btn" id="saveServicesBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Define URLs for use in dashboard.js
+    window.dashboardUrls = {
+      getRatesAndServices: '{% url "get_rates_and_services" %}',
+      uploadProfilePictureDashboard: '{% url "upload_profile_picture_dashboard" %}',
+      deleteProfilePicture: '{% url "delete_profile_picture" %}',
+      saveRates: '{% url "save_rates" %}',
+      updateAvailability: '{% url "update_availability" %}',
+      updateServices: '{% url "update_services" %}'
+    };
+    window.csrfToken = '{{ csrf_token }}';
+  });
+</script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+
+{% endblock %}

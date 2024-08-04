@@ -1,100 +1,52 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+
+<nav class="navbar navbar-expand navbar-light bg-white shadow-sm fixed-top">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">
-      <img
-        src="{% static 'chambeopr_logo.png' %}"
-        alt="ChambeoPR Logo"
-        class="logo"
-      />
+    <a class="navbar-brand" href="{% url 'index' %}">
+      <img src="{% static 'images/chambeopr_logo.png' %}" alt="ChambeoPR Logo" class="logo" />
     </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+    <div class="justify-content-end" id="navbarNav">
       <ul class="navbar-nav nav-links">
         {% if user.is_authenticated %}
-        <!-- Dropdown for larger screens -->
-        <li class="nav-item dropdown d-none d-lg-block">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            id="navbarDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            style="color: black"
-          >
-            Hello, {{ user.username }}
+        <li class="nav-item dropdown navbar-dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <!-- Navbar User Profile Pill-->
+            <div class="nav-user-pill d-flex align-items-center">
+              <div class="nav-hamburger-icon">
+                <i class="fas fa-bars"></i>
+              </div>
+              <div class="nav-profile-pic" id="nav-profile-pic-container">
+                <i class="fas fa-user-circle fa-2x user-icon" id="navbar-profile-icon"></i>
+              </div>
+            </div>
           </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <ul class="mt-2 dropdown-menu dropdown-menu-end navbar-dropdown-menu" aria-labelledby="navbarDropdown">
             <li>
-              <a class="dropdown-item" href="{% url 'home' %}">Services</a>
+              <a class="dropdown-item" href="{% url 'index' %}">Services</a>
+            </li>
+            {% if user.is_pro %}
+            <li>
+              <a class="dropdown-item" href="{% url 'dashboard' %}">Pro Dashboard</a>
+            </li>
+            {% else %}
+            <li>
+              <a class="dropdown-item" href="#" onclick="handleBecomeaPro(event)">Become a Pro</a>
+            </li>
+            {% endif %}
+            <li>
+              <a class="dropdown-item" href="{% url 'delete_account' %}">Manage Account</a>
             </li>
             <li>
-              <a class="dropdown-item" href="{% url 'delete_account' %}"
-                >Delete Account</a
-              >
-            </li>
-            <li>
-              <form
-                id="logout-form"
-                action="{% url 'logout' %}"
-                method="post"
-                style="display: inline"
-                onsubmit="return confirmLogout();"
-              >
+              <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline" onsubmit="return confirmLogout();">
                 {% csrf_token %}
-                <button
-                  type="submit"
-                  class="dropdown-item"
-                  style="color: #f00; font-weight: bold"
-                >
-                  Sign out
-                </button>
+                <button type="submit" class="dropdown-item" style="color: black; font-weight: bold">Sign out</button>
               </form>
             </li>
           </ul>
         </li>
-        <!-- Links for smaller screens -->
-
-        <li class="nav-item d-lg-none">
-          <a class="nav-link" href="{% url 'home' %}">Services</a>
-        </li>
-        <li class="nav-item d-lg-none">
-          <a class="nav-link" href="{% url 'delete_account' %}"
-            >Delete Account</a
-          >
-        </li>
-        <li class="nav-item d-lg-none">
-          <form
-            id="logout-form"
-            action="{% url 'logout' %}"
-            method="post"
-            style="display: inline"
-            onsubmit="return confirmLogout();"
-          >
-            {% csrf_token %}
-            <button
-              type="submit"
-              class="btn btn-link nav-link logout"
-              style="color: #f00; font-weight: bold"
-            >
-              Logout
-            </button>
-          </form>
-        </li>
         {% else %}
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'home' %}">Services</a>
+          <a class="nav-link" href="{% url 'index' %}">Services</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'signup' %}">Sign up</a>
@@ -112,4 +64,39 @@
   function confirmLogout() {
     return confirm("Are you sure you want to log out?");
   }
+
+  function handleBecomeaPro(event) {
+    {% if user.is_pro %}
+      event.preventDefault();
+      alert("You are already a pro user.");
+    {% else %}
+      window.location.href = "{% url 'become_a_pro' %}";
+    {% endif %}
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const profilePicContainer = document.getElementById('nav-profile-pic-container');
+
+    fetch("{% url 'get_user_profile_pic' %}")
+      .then(response => response.json())
+      .then(data => {
+        const profilePicUrl = data.profile_pic_url;
+        updateProfilePic(profilePicContainer, profilePicUrl);
+      });
+
+    document.addEventListener('profilePicUpdated', function(e) {
+      const profilePicUrl = e.detail.profile_pic_url;
+      updateProfilePic(profilePicContainer, profilePicUrl);
+    });
+  });
+
+  function updateProfilePic(container, profilePicUrl) {
+    if (profilePicUrl) {
+      container.innerHTML = `<img src="${profilePicUrl}" alt="Profile Picture" class="rounded-circle" id="navbar-profile-pic" />`;
+    } else {
+      container.innerHTML = `<i class="fas fa-user-circle fa-2x user-icon" id="navbar-profile-icon" style="color: #ccc;"></i>`;
+    }
+  }
+
+  window.addEventListener('resize', toggleBodyScrollbarClass);
 </script>

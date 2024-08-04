@@ -1,0 +1,53 @@
+/* Footer colors */
+:root {
+  --footer-background-color: #333;
+  --footer-text-color: #fff;
+}
+
+footer {
+  background-color: var(--footer-background-color);
+  color: var(--footer-text-color);
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid #ddd;
+  margin-top: auto;
+}
+
+footer h5 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+footer ul {
+  padding: 0;
+  list-style: none;
+}
+
+footer ul li {
+  margin-bottom: 0.5rem;
+}
+
+footer ul li a {
+  color: var(--footer-text-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer ul li a:hover {
+  color: var(--link-hover-color);
+}
+
+footer .socials a {
+  color: var(--footer-text-color);
+  transition: color 0.3s ease;
+}
+
+footer .socials a:hover {
+  color: var(--link-hover-color);
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}

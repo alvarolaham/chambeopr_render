@@ -1,0 +1,92 @@
+{% extends "myapp/layout.html" %}
+{% load static %}
+
+{% block title %}Bookiao | #1 Services App in Puerto Rico{% endblock %}
+
+{% block content %}
+{% spaceless %}
+<main>
+    <section class="index-bookiao-search-container">
+        <h1 class="index-bookiao-title">Find services fast.</h1>
+        <div class="index-bookiao-search-form">
+            <div class="row index-input-row">
+                <div class="col">
+                    <input type="text" id="zipcode" class="form-control index-bookiao-input" placeholder="ZIP Code" aria-label="ZIP Code">
+                </div>
+                <div class="col-4">
+                    <input type="text" id="date" class="form-control index-bookiao-input" placeholder="Fri Jul 26" aria-label="Date">
+                </div>
+                <div class="col-4">
+                    <input type="text" id="time" class="form-control index-bookiao-input" placeholder="12:00 PM" aria-label="Time">
+                </div>
+            </div>
+
+            <div class="index-bookiao-search-bar col">
+                <input type="text" id="search-input" class="index-bookiao-input" placeholder="I am looking for..." aria-label="Search services">
+                <button id="search-button" class="index-bookiao-search-button" aria-label="Search">
+                    <span class="material-symbols-outlined">search</span>
+                </button>
+            </div>
+
+            <div id="search-results" class="index-bookiao-search-results" role="listbox" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <section class="index-service-grid mt-5">
+        <a href="{% url 'home_services' %}" class="index-service-item no-underline">
+            <div class="index-service-icon">
+                <span class="material-symbols-outlined" aria-hidden="true">home</span>
+            </div>
+            <h3 class="index-services-text">Home Services</h3>
+        </a>
+        <a href="{% url 'car_and_vehicle_services' %}" class="index-service-item no-underline">
+            <div class="index-service-icon">
+                <span class="material-symbols-outlined" aria-hidden="true">directions_car</span>
+            </div>
+            <h3 class="index-services-text">Car & Vehicle</h3>
+        </a>
+        <a href="{% url 'pet_services' %}" class="index-service-item no-underline">
+            <div class="index-service-icon">
+                <span class="material-symbols-outlined" aria-hidden="true">pets</span>
+            </div>
+            <h3 class="index-services-text">Pets</h3>
+        </a>
+        <a href="{% url 'moving_services' %}" class="index-service-item no-underline">
+            <div class="index-service-icon">
+                <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
+            </div>
+            <h3 class="index-services-text">Moving</h3>
+        </a>
+        <a href="{% url 'professional_services' %}" class="index-service-item no-underline">
+            <div class="index-service-icon">
+                <span class="material-symbols-outlined" aria-hidden="true">work</span>
+            </div>
+            <h3 class="index-services-text">Professional</h3>
+        </a>
+        <a href="{% url 'events_services' %}" class="index-service-item no-underline">
+            <div class="index-service-icon">
+                <span class="material-symbols-outlined" aria-hidden="true">event</span>
+            </div>
+            <h3 class="index-services-text">Events</h3>
+        </a>
+    </section>
+</main>
+{% endspaceless %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.indexUrls = {
+      searchServices: '{% url "search_services" %}',
+      categoryUrls: {
+          home_services: '{% url "home_services" %}',
+          car_and_vehicle_services: '{% url "car_and_vehicle_services" %}',
+          pet_services: '{% url "pet_services" %}',
+          moving_services: '{% url "moving_services" %}',
+          professional_services: '{% url "professional_services" %}',
+          events_services: '{% url "events_services" %}',
+      }
+  };
+</script>
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}

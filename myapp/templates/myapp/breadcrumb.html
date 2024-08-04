@@ -1,12 +1,17 @@
 {% comment %} breadcrumb.html {% endcomment %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+/>
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-            <a href="{% url 'home' %}" class="breadcrumb-home">
-                <i class="fas fa-home"></i>
-            </a>
-        </li>
-        <li class="breadcrumb-item active breadcrumb-item-text" aria-current="page">{{ current_page }}</li>
-    </ol>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'index' %}" class="breadcrumb-home">
+        <i class="fas fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active breadcrumb-item-text" aria-current="page">
+      {{ current_page }}
+    </li>
+  </ol>
 </nav>

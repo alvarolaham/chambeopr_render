@@ -1,0 +1,154 @@
+{% extends 'myapp/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-body p-5">
+          <h1 class="text-center mb-4 fw-bold" style="font-size: 2.5rem">
+            Hello, {{ business_name }}
+          </h1>
+          <h2 class="text-center mb-4">Complete Your Profile</h2>
+          <div class="progress mb-4">
+            <div class="progress-bar" id="profileProgress" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <ul class="list-group mb-4">
+            <li class="list-group-item d-flex justify-content-between align-items-center" id="uploadPhotoOption">
+              <div class="d-flex align-items-center">
+                <span id="uploadPhotoCheck" class="checkmark" style="display: none">
+                  <i class="fas fa-check"></i>
+                </span>
+                <span>Upload profile photo</span>
+              </div>
+              <span class="arrow-icon">
+                <i class="fas fa-chevron-right"></i>
+              </span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center" id="setRatesOption">
+              <div class="d-flex align-items-center">
+                <span id="setRatesCheck" class="checkmark" style="display: none">
+                  <i class="fas fa-check"></i>
+                </span>
+                <span>Set your rates per skill</span>
+              </div>
+              <span class="arrow-icon">
+                <i class="fas fa-chevron-right"></i>
+              </span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center" id="setPaymentOption">
+              <div class="d-flex align-items-center">
+                <span id="setPaymentCheck" class="checkmark" style="display: none">
+                  <i class="fas fa-check"></i>
+                </span>
+                <span>Set up payment method</span>
+              </div>
+              <span class="arrow-icon">
+                <i class="fas fa-chevron-right"></i>
+              </span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center" id="setAvailabilityOption">
+              <div class="d-flex align-items-center">
+                <span id="setAvailabilityCheck" class="checkmark" style="display: none">
+                  <i class="fas fa-check"></i>
+                </span>
+                <span>Set up availability</span>
+              </div>
+              <span class="arrow-icon">
+                <i class="fas fa-chevron-right"></i>
+              </span>
+            </li>
+          </ul>
+          <form id="profileForm" method="post" action="{% url 'onboarding' %}">
+            {% csrf_token %}
+            {{ form.rates }}
+            <input type="hidden" id="id_availability" name="availability" value="{{ form.availability.value|default_if_none:'' }}" />
+            <button type="submit" class="btn btn-dark w-100">Save Profile</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Upload Photo Modal -->
+<div class="modal fade" id="uploadPhotoModal" tabindex="-1" aria-labelledby="uploadPhotoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadPhotoModalLabel">Upload Profile Photo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadPhotoForm" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="profilePicture" class="form-label">Choose a photo</label>
+            <input type="file" class="form-control" id="profilePicture" name="profile_picture" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="savePhotoBtn">Upload Photo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Set Rates Modal -->
+<div class="modal fade" id="setRatesModal" tabindex="-1" aria-labelledby="setRatesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="setRatesModalLabel">Set Your Rates</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Service rates will be dynamically added here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveRatesBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Set Availability Modal -->
+<div class="modal fade" id="setAvailabilityModal" tabindex="-1" aria-labelledby="setAvailabilityModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="setAvailabilityModalLabel">Set Your Availability</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="availabilityText" class="form-control" rows="4" maxlength="100"></textarea>
+        <div class="text-end mt-2">
+          <small id="charCount">0/100</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveAvailabilityBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.onboardingUrls = {
+    getServices: '{% url "get_services" %}',
+    uploadProfilePicture: '{% url "upload_profile_picture" %}',
+    onboarding: '{% url "onboarding" %}'
+  };
+</script>
+<script src="{% static 'js/onboarding.js' %}"></script>
+{% endblock %}

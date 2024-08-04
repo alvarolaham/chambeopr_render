@@ -1,18 +1,73 @@
-{% extends 'myapp/home.html' %}
+{% extends 'myapp/layout.html' %} {% block content %}
+<div class="container mt-5">
+  <h2>Delete Account</h2>
+  <p>
+    Are you sure you want to delete your account? This action cannot be undone.
+  </p>
+  {% if user.is_pro %}
+  <p>
+    <strong>Warning:</strong> Deleting your account will also delete all your
+    pro account information, including your business name, phone number, zip
+    code, and selected services.
+  </p>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <button
+      type="submit"
+      class="btn btn-danger"
+      onclick="return confirm('Are you absolutely sure you want to delete your entire account? This action is irreversible.');"
+    >
+      Delete Entire Account
+    </button>
+  </form>
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Delete Account</h2>
-    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-    <form method="post" onsubmit="return confirmDeleteAccount();">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete my account</button>
-    </form>
+  {% if user.is_pro %}
+  <hr />
+  <h2>Delete Pro Account</h2>
+  <p>
+    If you wish to delete only your pro account information, click the button
+    below. This will remove your business name, phone number, zip code, and
+    selected services.
+  </p>
+  <button
+    type="button"
+    class="btn btn-warning"
+    onclick="confirmDeleteProAccount()"
+  >
+    Delete Pro Account
+  </button>
+  {% endif %}
 </div>
 
 <script>
-function confirmDeleteAccount() {
-    return confirm('Are you sure you want to delete your account? This action cannot be undone.');
-}
+  function confirmDeleteProAccount() {
+    if (
+      confirm(
+        "Are you sure you want to delete your pro account? This will remove all your pro account information.",
+      )
+    ) {
+      fetch("{% url 'delete_pro_account' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            alert("Pro account deleted successfully.");
+            location.reload();
+          } else {
+            alert("Failed to delete pro account. Please try again.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred. Please try again.");
+        });
+    }
+  }
 </script>
 {% endblock %}

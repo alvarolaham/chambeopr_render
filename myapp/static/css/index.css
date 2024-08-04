@@ -1,0 +1,164 @@
+:root {
+  /* General colors */
+  --background-color: #ffffff;
+  --text-color: #333;
+  --link-color: #333;
+  --link-hover-color: #ff2e00;
+  /* Search bar colors */
+  --search-button-color: #87e2b9;
+  --search-button-hover-color: #497963;
+  /* Card button colors */
+  --card-button-color: #4caf50;
+  --card-button-hover-color: #45a049;
+  /* Alert colors */
+  --alert-danger-color: #721c24;
+  --alert-danger-background: #f8d7da;
+  --alert-danger-border: #f5c6cb;
+  --alert-success-color: #155724;
+  --alert-success-background: #d4edda;
+  --alert-success-border: #c3e6cb;
+}
+
+.index-bookiao-search-container {
+  max-width: 50%;
+  margin: 20px auto;
+  padding: 2%;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  position: relative;
+}
+
+.index-bookiao-title {
+  font-size: 3rem;
+  font-weight: bold;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.index-bookiao-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.index-bookiao-input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid rgb(210, 210, 210);
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.index-bookiao-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.index-bookiao-search-button {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  bottom: 4px;
+  background-color: #ff4500;
+  border: none;
+  color: white;
+  padding: 0 12px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.index-bookiao-search-results {
+  position: absolute;
+  margin-top: 10px;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+
+.index-search-filter-result {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.index-search-filter-result:hover {
+  background-color: #f0f0f0;
+}
+
+.index-search-filter-result.category {
+  font-weight: bold;
+}
+
+
+.index-bookiao-input,
+.index-bookiao-search-button {
+  height: auto !important;
+  line-height: normal !important;
+}
+
+.material-symbols-outlined {
+  font-weight: bold;
+}
+
+.index-service-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.index-service-item {
+  flex: 1 1 150px;
+  margin: 10px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  text-decoration: none;
+}
+
+.index-service-item:hover {
+  transform: translateY(-5px);
+}
+
+.index-service-icon {
+  font-size: 2rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.index-service-item h3 {
+  margin-top: 0.5rem;
+  color: #424242;
+  font-size: 1rem;
+}
+
+.index-service-item,
+.index-service-item h3,
+.index-service-item span {
+  text-decoration: none;
+}
+
+.index-service-item:hover h3,
+.index-service-item:hover span {
+  text-decoration: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .index-bookiao-title {
+    font-size: 2rem;
+  }
+  .index-bookiao-search-container {
+    max-width: 90%;
+    padding: 5%;
+  }
+}

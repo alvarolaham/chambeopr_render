@@ -1,23 +1,27 @@
-{% extends 'myapp/home.html' %} {% load static %} {% block content %} 
+{% extends 'myapp/layout.html' %}
+{% load static %}
+{% block content %}
 <div class="container mt-5 d-flex justify-content-center">
   <div class="card p-4 shadow-sm" style="max-width: 500px; width: 100%">
     <div class="text-center mb-4">
       <img
-        src="{% static 'chambeopr_logo.png' %}"
+        src="{% static 'images/chambeopr_logo.png' %}"
         alt="ChambeoPR Logo"
         class="img-fluid"
         style="max-width: 150px"
       />
     </div>
     <h2 class="text-center mb-4">Log in</h2>
-    {% if messages %} {% for message in messages %}
+    {% if messages %}
+    {% for message in messages %}
     <div
       class="alert {% if 'success' in message.tags %}alert-success{% else %}alert-danger{% endif %}"
       role="alert"
     >
       <strong>{{ message }}</strong>
     </div>
-    {% endfor %} {% endif %}
+    {% endfor %}
+    {% endif %}
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
       <div class="mb-3">
@@ -41,16 +45,17 @@
       <div class="d-grid text-center">
         <button
           type="submit"
-          class="btn btn-primary w-100 rounded-pill fw-bold"
+          class="btn login-button btn-primary w-100 rounded-pill fw-bold"
         >
           Log in
         </button>
       </div>
     </form>
     <div class="text-center mt-3">
-      <a href="{% url 'password_reset' %}" class="text-success"
-        >Forgot password?</a
-      >
+      <a href="{% url 'password_reset' %}" class="text-success">Forgot password?</a>
+    </div>
+    <div class="text-center mt-3">
+      <span>Don't have an account? Register <a href="{% url 'signup' %}" class="text-primary" style="font-weight: bold;">here</a>.</span>
     </div>
   </div>
 </div>
