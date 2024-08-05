@@ -674,19 +674,15 @@ def upload_profile_picture(request):
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=request.user)
 
-        form = ProfilePictureForm(
-            request.POST, request.FILES, instance=profile
-        )
+        form = ProfilePictureForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             temp_file = form.cleaned_data["profile_picture"]
-            temp_file_path = temp_storage.save(
-                f"temp/{temp_file.name}", temp_file
-            )
+            temp_file_path = temp_storage.save(f"temp/{temp_file.name}", temp_file)
             request.session["temp_profile_picture"] = temp_file_path
-            return JsonResponse(
-                {"success": True, "temp_file_path": temp_file_path}
-            )
+            logger.info(f"Temp file saved at: {temp_file_path}")
+            return JsonResponse({"success": True, "temp_file_path": temp_file_path})
         else:
+            logger.error(f"Form errors: {form.errors}")
             return JsonResponse({"success": False, "errors": form.errors})
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
@@ -698,18 +694,31 @@ def upload_profile_picture_dashboard(request):
         form = ProfilePictureForm(request.POST, request.FILES)
         if form.is_valid():
             profile = request.user.profile
-            profile.profile_picture = form.cleaned_data["profile_picture"]
+            profile_picture = form.cleaned_data["profile_picture"]
+
+            # Move from temporary storage to default storage (S3)
+            temp_file_path = request.session.get("temp_profile_picture")
+            if temp_file_path:
+                try:
+                    with temp_storage.open(temp_file_path) as temp_file:
+                        profile.profile_picture.save(
+                            os.path.basename(temp_file_path), ContentFile(temp_file.read())
+                        )
+                    temp_storage.delete(temp_file_path)
+                    del request.session["temp_profile_picture"]
+                    logger.info(f"Profile picture saved to S3 from {temp_file_path}")
+                except Exception as e:
+                    logger.error(f"Error moving temp file to S3: {e}")
+                    return JsonResponse({"success": False, "error": str(e)})
+
             profile.save()
-            return JsonResponse(
-                {
-                    "success": True,
-                    "profile_picture_url": profile.profile_picture.url,
-                }
-            )
+            return JsonResponse({"success": True, "profile_picture_url": profile.profile_picture.url})
         else:
+            logger.error(f"Form errors: {form.errors}")
             return JsonResponse({"success": False, "errors": form.errors})
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
+
 
 @login_required
 def delete_profile_picture(request):
