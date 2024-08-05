@@ -18,7 +18,13 @@ DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list(
     "ALLOWED_HOSTS",
-    default=["bookiao.herokuapp.com", "bookiao-ae61444b7814.herokuapp.com", "localhost", "127.0.0.1", "www.bookiao.com"],
+    default=[
+        "bookiao.herokuapp.com",
+        "bookiao-ae61444b7814.herokuapp.com",
+        "localhost",
+        "127.0.0.1",
+        "www.bookiao.com"
+    ],
 )
 
 # Application definition
