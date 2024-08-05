@@ -719,7 +719,11 @@ def upload_profile_picture_dashboard(request):
     if request.method == "POST":
         form = ProfilePictureForm(request.POST, request.FILES)
         if form.is_valid():
-            profile = request.user.profile
+            try:
+                profile = request.user.profile
+            except UserProfile.DoesNotExist:
+                profile = UserProfile.objects.create(user=request.user)
+
             profile_picture = form.cleaned_data["profile_picture"]
 
             # Check the file size
@@ -749,6 +753,9 @@ def upload_profile_picture_dashboard(request):
                 profile.profile_picture.save(os.path.basename(temp_file_path), ContentFile(temp_file.read()))
             
             logger.info(f"Profile picture saved to S3: {profile.profile_picture.url}")
+            temp_storage.delete(temp_file_path)  # Ensure the temp file is deleted
+            del request.session["temp_profile_picture"]  # Ensure the session data is cleared
+            
             return JsonResponse({"success": True, "profile_picture_url": profile.profile_picture.url})
         else:
             logger.error(f"Form errors: {form.errors}")
