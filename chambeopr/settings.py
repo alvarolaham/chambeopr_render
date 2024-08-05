@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import environ
+import dj_database_url
 
 # Initialize environment variables
 env = environ.Env()
@@ -63,18 +64,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "chambeopr.wsgi.application"
 
+# Database configuration
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT"),
-        "TEST": {
-            "NAME": env("DB_TEST_NAME", default="test_chambeopr"),
-        },
-    }
+    "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
 }
 
 TEST_RUNNER = "myapp.tests.test_runner.PostgresTestRunner"
