@@ -37,6 +37,8 @@ from .models import (
     UserProfile,
     ZipCode,
 )
+from django.views.decorators.csrf import csrf_exempt
+
 
 logger = logging.getLogger(__name__)
 
@@ -667,6 +669,7 @@ def dashboard(request):
     )
 
 @login_required
+@csrf_exempt
 def upload_profile_picture(request):
     if request.method == "POST":
         try:
@@ -689,6 +692,7 @@ def upload_profile_picture(request):
 
 
 @login_required
+@csrf_exempt
 def upload_profile_picture_dashboard(request):
     if request.method == "POST":
         form = ProfilePictureForm(request.POST, request.FILES)
