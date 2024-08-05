@@ -17,19 +17,19 @@ DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list(
     "ALLOWED_HOSTS",
-    default=["chambeo-pr.onrender.com", "localhost", "127.0.0.1"],
+    default=["bookiao.herokuapp.com", "localhost", "127.0.0.1"],
 )
 
 # Application definition
 INSTALLED_APPS = [
     "myapp",
+    "anymail",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "anymail",
 ]
 
 MIDDLEWARE = [
@@ -66,11 +66,11 @@ WSGI_APPLICATION = "chambeopr.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME", default="chambeopr"),
-        "USER": env("DB_USER", default="chambeoadmin"),
-        "PASSWORD": env("DB_PASSWORD", default="password"),
-        "HOST": env("DB_HOST", default="localhost"),
-        "PORT": env("DB_PORT", default="5432"),
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
         "TEST": {
             "NAME": env("DB_TEST_NAME", default="test_chambeopr"),
         },
@@ -136,6 +136,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=True)
 SESSION_SAVE_EVERY_REQUEST = True
 
+# Template paths
 TEMPLATE_PATHS = {
     "signup": "myapp/accounts/signup.html",
     "login": "myapp/accounts/login.html",
