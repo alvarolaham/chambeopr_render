@@ -4,4 +4,3 @@ django_environ
 tabulate
 termcolor
 gunicorn
-social_django
