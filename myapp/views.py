@@ -5,13 +5,14 @@ import os
 from collections import defaultdict
 from datetime import timedelta
 
+from django.core.files.storage import default_storage, FileSystemStorage
+from django.core.files.base import ContentFile
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from django.core.files.storage import default_storage
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -38,6 +39,9 @@ from .models import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Define a temporary storage location
+temp_storage = FileSystemStorage(location='temp/')
 
 SERVICES = {
     "home_services": [
@@ -564,12 +568,12 @@ def onboarding(request):
             # Save the temporary profile picture if it exists
             temp_profile_picture = request.session.get("temp_profile_picture")
             if temp_profile_picture:
-                with default_storage.open(temp_profile_picture) as temp_file:
+                with temp_storage.open(temp_profile_picture) as temp_file:
                     profile = request.user.profile
                     profile.profile_picture.save(
-                        os.path.basename(temp_profile_picture), temp_file
+                        os.path.basename(temp_profile_picture), ContentFile(temp_file.read())
                     )
-                default_storage.delete(
+                temp_storage.delete(
                     temp_profile_picture
                 )  # Ensure the temp file is deleted
                 del request.session[
@@ -675,7 +679,7 @@ def upload_profile_picture(request):
         )
         if form.is_valid():
             temp_file = form.cleaned_data["profile_picture"]
-            temp_file_path = default_storage.save(
+            temp_file_path = temp_storage.save(
                 f"temp/{temp_file.name}", temp_file
             )
             request.session["temp_profile_picture"] = temp_file_path
@@ -686,6 +690,7 @@ def upload_profile_picture(request):
             return JsonResponse({"success": False, "errors": form.errors})
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
+
 
 @login_required
 def upload_profile_picture_dashboard(request):
