@@ -7,9 +7,7 @@ from django.db import models
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(
-        self, username, email, first_name, last_name, password=None
-    ):
+    def create_user(self, username, email, first_name, last_name, password=None):
         if not username:
             raise ValueError("Users must have a username")
         if not email:
@@ -22,14 +20,10 @@ class MyUserManager(BaseUserManager):
         )
         user.set_password(password)
         user.save(using=self._db)
-        UserProfile.objects.create(
-            user=user
-        )  # Create a UserProfile for the new user
+        UserProfile.objects.create(user=user)  # Create a UserProfile for the new user
         return user
 
-    def create_superuser(
-        self, username, email, first_name, last_name, password
-    ):
+    def create_superuser(self, username, email, first_name, last_name, password):
         user = self.create_user(
             username=username,
             email=email,

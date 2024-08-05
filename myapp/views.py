@@ -21,7 +21,6 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.http import require_POST
 
-
 from .forms import (
     CustomUserCreationForm,
     OnboardingForm,
@@ -39,7 +38,6 @@ from .models import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 SERVICES = {
     "home_services": [
@@ -86,14 +84,10 @@ SERVICES = {
     ],
 }
 
-# views.py
-
-
 def index(request):
     logger.info("Rendering index.html")
     context = {"services": SERVICES}
     return render(request, "myapp/index.html", context)
-
 
 def signup(request):
     if request.user.is_authenticated:
@@ -120,10 +114,8 @@ def signup(request):
     logger.info("Rendering signup.html")
     return render(request, "myapp/accounts/signup.html", {"form": form})
 
-
 def login_view(request):
     if request.user.is_authenticated:
-        print("User is already authenticated")
         return redirect(reverse_lazy("index"))
 
     if request.method == "POST":
@@ -139,11 +131,9 @@ def login_view(request):
             )
     return render(request, "myapp/accounts/login.html")
 
-
 def logout_view(request):
     logout(request)
     return redirect("index")
-
 
 @login_required
 def delete_account(request):
@@ -205,14 +195,12 @@ def delete_account(request):
 
     return render(request, "myapp/accounts/delete_account.html")
 
-
 def home_services(request):
     services = SERVICES["home_services"]
     services.sort()
     return render(
         request, "myapp/services/home_services.html", {"services": services}
     )
-
 
 def car_and_vehicle_services(request):
     services = SERVICES["car_and_vehicle_services"]
@@ -223,7 +211,6 @@ def car_and_vehicle_services(request):
         {"services": services},
     )
 
-
 def pet_services(request):
     services = SERVICES["pet_services"]
     services.sort()
@@ -231,14 +218,12 @@ def pet_services(request):
         request, "myapp/services/pet_services.html", {"services": services}
     )
 
-
 def moving_services(request):
     services = SERVICES["moving_services"]
     services.sort()
     return render(
         request, "myapp/services/moving_services.html", {"services": services}
     )
-
 
 def professional_services(request):
     services = SERVICES["professional_services"]
@@ -249,14 +234,12 @@ def professional_services(request):
         {"services": services},
     )
 
-
 def events_services(request):
     services = SERVICES["events_services"]
     services.sort()
     return render(
         request, "myapp/services/events_services.html", {"services": services}
     )
-
 
 def search_services(request):
     query = request.GET.get("q", "").lower()
@@ -268,10 +251,8 @@ def search_services(request):
 
     return JsonResponse({"filtered_services": filtered_services})
 
-
 def generate_code():
     return "".join(secrets.choice("0123456789") for _ in range(6))
-
 
 def password_reset_request(request):
     if request.method == "POST":
@@ -317,7 +298,6 @@ def password_reset_request(request):
         request, "myapp/accounts/password_reset.html", {"form": form}
     )
 
-
 def password_reset_code(request):
     if request.method == "POST":
         form = PasswordResetCodeForm(request.POST)
@@ -345,7 +325,6 @@ def password_reset_code(request):
     return render(
         request, "myapp/accounts/password_reset_code.html", {"form": form}
     )
-
 
 def password_reset_confirm(request, uidb64=None, token=None):
     try:
@@ -405,14 +384,11 @@ def password_reset_confirm(request, uidb64=None, token=None):
         messages.error(request, "The reset link is no longer valid.")
         return redirect("password_reset")
 
-
 def password_reset_complete(request):
     messages.success(request, "Your password has been reset successfully.")
     return redirect("login")
 
-
 from collections import defaultdict
-
 
 @login_required
 def become_a_pro(request):
@@ -474,7 +450,6 @@ def become_a_pro(request):
         }
 
         return render(request, "myapp/accounts/become_a_pro.html", context)
-
 
 @login_required
 @require_POST
@@ -543,13 +518,11 @@ def delete_pro_account(request):
             }
         )
 
-
 @login_required
 def get_services(request):
     pro_account = request.user.proaccount
     services = pro_account.services.all().values("id", "name")
     return JsonResponse(list(services), safe=False)
-
 
 @login_required
 @require_POST
@@ -564,7 +537,6 @@ def save_rates(request):
         return JsonResponse({"success": False, "error": "Invalid JSON data"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-
 
 @login_required
 def onboarding(request):
@@ -628,7 +600,6 @@ def onboarding(request):
         {"form": form, "business_name": pro_account.business_name},
     )
 
-
 @login_required
 def get_rates_and_services(request):
     try:
@@ -645,7 +616,6 @@ def get_rates_and_services(request):
     except ProAccount.DoesNotExist:
         return JsonResponse({"error": "Pro account not found"}, status=404)
 
-
 @login_required
 @require_POST
 def update_availability(request):
@@ -657,7 +627,6 @@ def update_availability(request):
         return JsonResponse({"success": True})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-
 
 @login_required
 @require_POST
@@ -672,7 +641,6 @@ def update_services(request):
         return JsonResponse({"success": True})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-
 
 # Make sure the dashboard view includes all necessary context
 @login_required
@@ -693,7 +661,6 @@ def dashboard(request):
             "services": services,
         },
     )
-
 
 @login_required
 def upload_profile_picture(request):
@@ -720,7 +687,6 @@ def upload_profile_picture(request):
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
 
-
 @login_required
 def upload_profile_picture_dashboard(request):
     if request.method == "POST":
@@ -740,7 +706,6 @@ def upload_profile_picture_dashboard(request):
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
 
-
 @login_required
 def delete_profile_picture(request):
     if request.method == "POST":
@@ -748,7 +713,6 @@ def delete_profile_picture(request):
         user.profile.profile_picture.delete()
         return JsonResponse({"success": True})
     return JsonResponse({"success": False}, status=400)
-
 
 @login_required
 def get_user_profile_pic(request):
