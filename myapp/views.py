@@ -5,7 +5,7 @@ import os
 from collections import defaultdict
 from datetime import timedelta
 
-from django.core.files.storage import default_storage, FileSystemStorage
+from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.contrib import messages
@@ -22,6 +22,9 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.http import require_POST
 
+from PIL import Image
+from io import BytesIO
+
 from .forms import (
     CustomUserCreationForm,
     OnboardingForm,
@@ -37,8 +40,6 @@ from .models import (
     UserProfile,
     ZipCode,
 )
-from django.views.decorators.csrf import csrf_exempt
-
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +122,7 @@ def signup(request):
     return render(request, "myapp/accounts/signup.html", {"form": form})
 
 def login_view(request):
-    if request.user.is_authenticated:
+    if (request.user.is_authenticated):  # Syntax error: extra closing parenthesis
         return redirect(reverse_lazy("index"))
 
     if request.method == "POST":
@@ -398,7 +399,7 @@ from collections import defaultdict
 
 @login_required
 def become_a_pro(request):
-    if request.user.is_pro == True:
+    if request.user.is_pro:
         return redirect("dashboard")
     else:
         try:
@@ -411,9 +412,7 @@ def become_a_pro(request):
             if form.is_valid():
                 pro_account = form.save(commit=False)
                 pro_account.user = request.user
-                pro_account.become_a_pro_completed = (
-                    True  # Add this field to ProAccount model
-                )
+                pro_account.become_a_pro_completed = True
                 pro_account.save()
 
                 # Handle services
@@ -669,7 +668,6 @@ def dashboard(request):
     )
 
 @login_required
-@csrf_exempt
 def upload_profile_picture(request):
     if request.method == "POST":
         try:
@@ -679,43 +677,35 @@ def upload_profile_picture(request):
 
         form = ProfilePictureForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
-            temp_file = form.cleaned_data["profile_picture"]
-            temp_file_path = temp_storage.save(f"temp/{temp_file.name}", temp_file)
-            request.session["temp_profile_picture"] = temp_file_path
-            logger.info(f"Temp file saved at: {temp_file_path}")
-            return JsonResponse({"success": True, "temp_file_path": temp_file_path})
-        else:
-            logger.error(f"Form errors: {form.errors}")
-            return JsonResponse({"success": False, "errors": form.errors})
-
-    return JsonResponse({"success": False, "error": "Invalid request method"})
-
-
-@login_required
-@csrf_exempt
-def upload_profile_picture_dashboard(request):
-    if request.method == "POST":
-        form = ProfilePictureForm(request.POST, request.FILES)
-        if form.is_valid():
-            profile = request.user.profile
             profile_picture = form.cleaned_data["profile_picture"]
 
-            # Move from temporary storage to default storage (S3)
-            temp_file_path = request.session.get("temp_profile_picture")
-            if temp_file_path:
-                try:
-                    with temp_storage.open(temp_file_path) as temp_file:
-                        profile.profile_picture.save(
-                            os.path.basename(temp_file_path), ContentFile(temp_file.read())
-                        )
-                    temp_storage.delete(temp_file_path)
-                    del request.session["temp_profile_picture"]
-                    logger.info(f"Profile picture saved to S3 from {temp_file_path}")
-                except Exception as e:
-                    logger.error(f"Error moving temp file to S3: {e}")
-                    return JsonResponse({"success": False, "error": str(e)})
+            # Check the file size
+            if profile_picture.size > 2 * 1024 * 1024:  # 2MB
+                logger.info("Image size is greater than 2MB, resizing...")
 
-            profile.save()
+                # Resize the image
+                image = Image.open(profile_picture)
+                image = image.convert('RGB')  # Ensure image is in RGB mode
+                output = BytesIO()
+                image.thumbnail((1024, 1024))  # Resize image while maintaining aspect ratio
+                image.save(output, format='JPEG', quality=85)  # Save resized image to BytesIO
+                output.seek(0)
+
+                # Save resized image to temporary storage
+                temp_file = ContentFile(output.read(), name=profile_picture.name)
+                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", temp_file)
+            else:
+                logger.info("Image size is within limit, saving directly...")
+                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", profile_picture)
+
+            request.session["temp_profile_picture"] = temp_file_path
+            logger.info(f"Temp file saved at: {temp_file_path}")
+
+            # Associate the file with the profile and save
+            with temp_storage.open(temp_file_path) as temp_file:
+                profile.profile_picture.save(os.path.basename(temp_file_path), ContentFile(temp_file.read()))
+            
+            logger.info(f"Profile picture saved to S3: {profile.profile_picture.url}")
             return JsonResponse({"success": True, "profile_picture_url": profile.profile_picture.url})
         else:
             logger.error(f"Form errors: {form.errors}")
@@ -725,6 +715,49 @@ def upload_profile_picture_dashboard(request):
 
 
 @login_required
+def upload_profile_picture_dashboard(request):
+    if request.method == "POST":
+        form = ProfilePictureForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile = request.user.profile
+            profile_picture = form.cleaned_data["profile_picture"]
+
+            # Check the file size
+            if profile_picture.size > 2 * 1024 * 1024:  # 2MB
+                logger.info("Image size is greater than 2MB, resizing...")
+
+                # Resize the image
+                image = Image.open(profile_picture)
+                image = image.convert('RGB')  # Ensure image is in RGB mode
+                output = BytesIO()
+                image.thumbnail((1024, 1024))  # Resize image while maintaining aspect ratio
+                image.save(output, format='JPEG', quality=85)  # Save resized image to BytesIO
+                output.seek(0)
+
+                # Save resized image to temporary storage
+                temp_file = ContentFile(output.read(), name=profile_picture.name)
+                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", temp_file)
+            else:
+                logger.info("Image size is within limit, saving directly...")
+                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", profile_picture)
+
+            request.session["temp_profile_picture"] = temp_file_path
+            logger.info(f"Temp file saved at: {temp_file_path}")
+
+            # Associate the file with the profile and save
+            with temp_storage.open(temp_file_path) as temp_file:
+                profile.profile_picture.save(os.path.basename(temp_file_path), ContentFile(temp_file.read()))
+            
+            logger.info(f"Profile picture saved to S3: {profile.profile_picture.url}")
+            return JsonResponse({"success": True, "profile_picture_url": profile.profile_picture.url})
+        else:
+            logger.error(f"Form errors: {form.errors}")
+            return JsonResponse({"success": False, "errors": form.errors})
+
+    return JsonResponse({"success": False, "error": "Invalid request method"})
+
+@login_required
+@require_POST
 def delete_profile_picture(request):
     if request.method == "POST":
         user = request.user
