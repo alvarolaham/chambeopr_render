@@ -44,7 +44,7 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 # Define a temporary storage location
-temp_storage = FileSystemStorage(location=settings.TEMP_MEDIA_ROOT)
+temp_storage = FileSystemStorage(location='temp/')
 
 SERVICES = {
     "home_services": [
