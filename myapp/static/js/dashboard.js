@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Dashboard script loaded");
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    window.csrfToken = csrfToken;
+
     const updateRatesModal = new bootstrap.Modal(document.getElementById("updateRatesModal"));
     const updateAvailabilityModal = new bootstrap.Modal(document.getElementById("updateAvailabilityModal"));
     const updateServicesModal = new bootstrap.Modal(document.getElementById("updateServicesModal"));
