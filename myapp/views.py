@@ -44,7 +44,7 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 # Define a temporary storage location
-temp_storage = FileSystemStorage(location='temp/')
+temp_storage = FileSystemStorage(location=settings.TEMP_MEDIA_ROOT)
 
 SERVICES = {
     "home_services": [
@@ -667,6 +667,31 @@ def dashboard(request):
         },
     )
 
+
+def resize_and_save_image(profile_picture):
+    try:
+        if profile_picture.size > 2 * 1024 * 1024:  # 2MB
+            logger.info("Image size is greater than 2MB, resizing...")
+
+            # Resize the image
+            image = Image.open(profile_picture)
+            image = image.convert('RGB')
+            output = BytesIO()
+            image.thumbnail((1024, 1024))  # Resize while maintaining aspect ratio
+            image.save(output, format='JPEG', quality=85)  # Save resized image to BytesIO
+            output.seek(0)
+
+            # Save resized image to temporary storage
+            temp_file = ContentFile(output.read(), name=profile_picture.name)
+            temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", temp_file)
+        else:
+            logger.info("Image size is within limit, saving directly...")
+            temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", profile_picture)
+        return temp_file_path
+    except Exception as e:
+        logger.error(f"Error processing image: {e}")
+        return None
+
 @login_required
 def upload_profile_picture(request):
     if request.method == "POST":
@@ -678,33 +703,18 @@ def upload_profile_picture(request):
         form = ProfilePictureForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             profile_picture = form.cleaned_data["profile_picture"]
-
-            # Check the file size
-            if profile_picture.size > 2 * 1024 * 1024:  # 2MB
-                logger.info("Image size is greater than 2MB, resizing...")
-
-                # Resize the image
-                image = Image.open(profile_picture)
-                image = image.convert('RGB')  # Ensure image is in RGB mode
-                output = BytesIO()
-                image.thumbnail((1024, 1024))  # Resize image while maintaining aspect ratio
-                image.save(output, format='JPEG', quality=85)  # Save resized image to BytesIO
-                output.seek(0)
-
-                # Save resized image to temporary storage
-                temp_file = ContentFile(output.read(), name=profile_picture.name)
-                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", temp_file)
-            else:
-                logger.info("Image size is within limit, saving directly...")
-                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", profile_picture)
+            temp_file_path = resize_and_save_image(profile_picture)
+            if not temp_file_path:
+                return JsonResponse({"success": False, "error": "Image processing failed."})
 
             request.session["temp_profile_picture"] = temp_file_path
-            logger.info(f"Temp file saved at: {temp_file_path}")
 
-            # Associate the file with the profile and save
             with temp_storage.open(temp_file_path) as temp_file:
                 profile.profile_picture.save(os.path.basename(temp_file_path), ContentFile(temp_file.read()))
-            
+
+            temp_storage.delete(temp_file_path)
+            del request.session["temp_profile_picture"]
+
             logger.info(f"Profile picture saved to S3: {profile.profile_picture.url}")
             return JsonResponse({"success": True, "profile_picture_url": profile.profile_picture.url})
         else:
@@ -725,37 +735,19 @@ def upload_profile_picture_dashboard(request):
                 profile = UserProfile.objects.create(user=request.user)
 
             profile_picture = form.cleaned_data["profile_picture"]
-
-            # Check the file size
-            if profile_picture.size > 2 * 1024 * 1024:  # 2MB
-                logger.info("Image size is greater than 2MB, resizing...")
-
-                # Resize the image
-                image = Image.open(profile_picture)
-                image = image.convert('RGB')  # Ensure image is in RGB mode
-                output = BytesIO()
-                image.thumbnail((1024, 1024))  # Resize image while maintaining aspect ratio
-                image.save(output, format='JPEG', quality=85)  # Save resized image to BytesIO
-                output.seek(0)
-
-                # Save resized image to temporary storage
-                temp_file = ContentFile(output.read(), name=profile_picture.name)
-                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", temp_file)
-            else:
-                logger.info("Image size is within limit, saving directly...")
-                temp_file_path = temp_storage.save(f"temp/{profile_picture.name}", profile_picture)
+            temp_file_path = resize_and_save_image(profile_picture)
+            if not temp_file_path:
+                return JsonResponse({"success": False, "error": "Image processing failed."})
 
             request.session["temp_profile_picture"] = temp_file_path
-            logger.info(f"Temp file saved at: {temp_file_path}")
 
-            # Associate the file with the profile and save
             with temp_storage.open(temp_file_path) as temp_file:
                 profile.profile_picture.save(os.path.basename(temp_file_path), ContentFile(temp_file.read()))
-            
+
+            temp_storage.delete(temp_file_path)
+            del request.session["temp_profile_picture"]
+
             logger.info(f"Profile picture saved to S3: {profile.profile_picture.url}")
-            temp_storage.delete(temp_file_path)  # Ensure the temp file is deleted
-            del request.session["temp_profile_picture"]  # Ensure the session data is cleared
-            
             return JsonResponse({"success": True, "profile_picture_url": profile.profile_picture.url})
         else:
             logger.error(f"Form errors: {form.errors}")
