@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     "myapp",
     "anymail",
     "storages",  # Add storages for AWS S3
-    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
