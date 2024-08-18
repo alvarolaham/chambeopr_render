@@ -1,15 +1,17 @@
 :root {
-  /* General colors */
-  --link-color: #333;
-  --link-hover-color: #ff2e00;
-
-  /* Navbar colors */
-  --logout-color: #f00;
-  --logged-in-color: #4caf50;
+  --link-color: var(--dashboard-text-color); /* Updated to dashboard text color */
+  --link-hover-color: var(--dashboard-primary-color); /* Updated to dashboard primary color */
+  --logout-color: #f00; /* Keep as is or replace with a dashboard color if needed */
+  --logged-in-color: var(--dashboard-secondary-color); /* Updated to dashboard secondary color */
+  --navbar-bg: var(--dashboard-background-color); /* Updated to dashboard background color */
+  --offcanvas-bg: var(--dashboard-background-color); /* Updated to dashboard background color */
+  --icon-color: var(--dashboard-text-color); /* Updated to dashboard text color */
 }
 
+/* Large Navbar */
 .navbar {
   z-index: 1050;
+  background-color: var(--navbar-bg);
 }
 
 .navbar .nav-link {
@@ -36,11 +38,11 @@
 
 .navbar .dropdown-menu .dropdown-item:active {
   background-color: var(--link-hover-color);
-  color: #fff; /* Change text color to white for better contrast */
+  color: #fff;
 }
 
 .navbar-nav .nav-item.dropdown .nav-link .nav-user-pill {
-  border: 1px solid #ccc; /* Adjust the initial border color as needed */
+  border: 1px solid #ccc;
   transition: border-color 0.2s ease-in-out;
 }
 
@@ -48,7 +50,7 @@
 .navbar-nav .nav-item.dropdown .nav-link:focus-visible .nav-user-pill {
   outline: none;
   border-color: var(--link-hover-color);
-  border-width: 1px; /* Optionally increase border width for more emphasis */
+  border-width: 1px;
 }
 
 .navbar-nav .nav-item.dropdown .nav-link:focus,
@@ -70,6 +72,14 @@
   cursor: pointer;
 }
 
+#hamburger {
+  border-radius: 50px;
+  padding: 12px !important;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
 .nav-hamburger-icon {
   margin-right: 10px;
 }
@@ -86,21 +96,252 @@
 }
 
 .logout-btn {
-  color: var(--logout-color);
+  color: var(--logout-color) !important;
+  border: none !important;
   font-weight: bold;
 }
 
-@media (max-width: 768px) {
-  .navbar-brand img {
-    width: 30vw;
-    max-width: 150px;
+.signup-button,
+.login-button {
+  background-color: var(--link-hover-color) !important;
+}
+
+/* Full-screen off-canvas menu styles */
+.offcanvas-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1060;
+  background-color: var(--offcanvas-bg);
+  -webkit-transition: -webkit-transform 0.10s ease-out;
+  transition: transform 0.10s ease-out;
+  transform: translateX(100%);
+}
+
+.offcanvas-fullscreen.show {
+  -webkit-transform: translateX(0);
+  transform: translateX(0);
+}
+
+.offcanvas-fullscreen .offcanvas-header {
+  padding: 1rem 3.5rem 1rem 1rem;
+  position: relative;
+}
+
+.offcanvas-fullscreen .offcanvas-title img {
+  height: 30px;
+  width: auto;
+}
+
+.offcanvas-fullscreen .btn-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: black !important;
+  opacity: 1;
+  transition: none;
+  padding: 1.2rem;
+  z-index: 1070;
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+}
+
+.offcanvas-fullscreen .btn-close:hover,
+.offcanvas-fullscreen .btn-close:focus {
+  opacity: 0.75;
+  box-shadow: none;
+  outline: none;
+}
+
+.offcanvas-fullscreen .navbar-nav {
+  padding-top: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.offcanvas-fullscreen .nav-item {
+  margin-bottom: 1.5rem;
+}
+
+.offcanvas-fullscreen .nav-link {
+  color: var(--dashboard-text-color) !important;
+  font-size: 1.25rem;
+  padding: 1rem 0;
+  display: block;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Aesthetic line divider */
+}
+
+.offcanvas-fullscreen .nav-link:hover {
+  color: var(--link-hover-color) !important;
+  border-radius: 5px;
+}
+
+.offcanvas-fullscreen .nav-item.active .nav-link {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.navbar-toggler {
+  border: none;
+  padding: 0.25rem;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(51, 51, 51, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Mobile Navbar */
+.navbar-mobile {
+  display: none;
+  z-index: 1050;
+  background-color: var(--navbar-bg);
+}
+
+.navbar-mobile .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  flex-wrap: nowrap; /* Prevents wrapping */
+}
+
+.navbar-mobile .navbar-brand {
+  flex-shrink: 0; /* Prevents the logo from shrinking */
+}
+
+.navbar-mobile .index-bookiao-search-bar {
+  display: flex;
+  align-items: center;
+  flex-grow: 1; /* Allows the search bar to take up remaining space */
+  margin-left: 10px; /* Ensure there's some spacing from the logo */
+  position: relative;
+  flex-shrink: 1;
+  overflow: hidden; /* Prevents overflow */
+}
+
+.navbar-mobile .index-bookiao-input {
+  width: 100%;
+  padding: 0.7rem;
+  border: none !important;
+  background-color: rgb(240, 240, 240) !important;
+  border-radius: 50px;
+  font-size: 1rem;
+  margin-right: 10px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.navbar-mobile .index-bookiao-search-button {
+  position: absolute;
+  right: 10px;
+  background-color: transparent !important;
+  top: 4px;
+  bottom: 4px;
+  border: none;
+  color: var(--dashboard-text-color); /* Updated to dashboard text color */
+  padding: 0 12px;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.settings-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.375rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  margin-left: 10px; /* Ensure there's some spacing from the search bar */
+}
+
+.navbar-mobile .navbar-toggler {
+  border: none;
+  padding: 0.25rem;
+  margin-left: 10px; /* Ensure there's some spacing from the settings button */
+  flex-shrink: 0;
+}
+
+.navbar-mobile .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(51, 51, 51, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar-mobile .index-bookiao-search-results {
+  position: absolute;
+  margin-top: 10px;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--dashboard-background-color); /* Updated to dashboard background color */
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+
+.index-search-filter-result {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.index-search-filter-result:hover {
+  background-color: #f0f0f0;
+}
+
+.index-search-filter-result.category {
+  font-weight: bold;
+}
+
+/* Media Queries */
+@media (max-width: 600px) {
+  .navbar-large {
+    display: none;
+  }
+
+  .navbar-mobile {
+    display: flex;
+  }
+
+  .offcanvas-fullscreen .nav-link {
+    font-size: 1.5rem; /* Larger text size for small screens */
+    padding: 1.5rem 0; /* Increased padding for larger clickable area */
+  }
+
+  .offcanvas-fullscreen .nav-link {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.15); /* Thicker line divider */
+  }
+
+  .offcanvas-fullscreen .nav-link:hover {
+    padding-left: 0; /* Removed x-axis transition on hover */
+  }
+
+  .offcanvas-fullscreen .logout-btn {
+    color: #f00 !important;
+    border: none !important;
+    font-weight: bold;
+    background: none; /* Ensure no background color overrides */
+    width: 100%;
+    text-align: left;
   }
 }
 
-.signup-button {
-  background-color: var(--link-hover-color) !important;
+.settings-btn i {
+  font-size: 1.2rem;
+  color: var(--icon-color);
 }
 
-.login-button {
-  background-color: var(--link-hover-color) !important;
+.navbar-toggler-icon {
+  color: var(--icon-color);
 }

@@ -1,16 +1,19 @@
 {% load static %}
 
-<nav class="navbar navbar-expand navbar-light bg-white shadow-sm fixed-top">
+<!-- Large Screen Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top navbar-large">
   <div class="container">
     <a class="navbar-brand" href="{% url 'index' %}">
       <img src="{% static 'images/chambeopr_logo.png' %}" alt="ChambeoPR Logo" class="logo" />
     </a>
-    <div class="justify-content-end" id="navbarNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#fullscreenMenu" aria-controls="fullscreenMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav nav-links">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown navbar-dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <!-- Navbar User Profile Pill-->
             <div class="nav-user-pill d-flex align-items-center">
               <div class="nav-hamburger-icon">
                 <i class="fas fa-bars"></i>
@@ -21,45 +24,101 @@
             </div>
           </a>
           <ul class="mt-2 dropdown-menu dropdown-menu-end navbar-dropdown-menu" aria-labelledby="navbarDropdown">
-            <li>
-              <a class="dropdown-item" href="{% url 'index' %}">Services</a>
-            </li>
+            <li><a class="dropdown-item" href="{% url 'index' %}">Services</a></li>
             {% if user.is_pro %}
-            <li>
-              <a class="dropdown-item" href="{% url 'dashboard' %}">Pro Dashboard</a>
-            </li>
+            <li><a class="dropdown-item" href="{% url 'dashboard' %}">Pro Dashboard</a></li>
             {% else %}
-            <li>
-              <a class="dropdown-item" href="#" onclick="handleBecomeaPro(event)">Become a Pro</a>
-            </li>
+            <li><a class="dropdown-item" href="#" onclick="handleBecomeaPro(event)">Become a Pro</a></li>
             {% endif %}
-            <li>
-              <a class="dropdown-item" href="{% url 'delete_account' %}">Manage Account</a>
-            </li>
+            <li><a class="dropdown-item" href="{% url 'delete_account' %}">Manage Account</a></li>
             <li>
               <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline" onsubmit="return confirmLogout();">
                 {% csrf_token %}
-                <button type="submit" class="dropdown-item" style="color: black; font-weight: bold">Sign out</button>
+                <button type="submit" class="dropdown-item logout-btn">Sign out</button>
               </form>
             </li>
           </ul>
         </li>
         {% else %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'index' %}">Services</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'signup' %}">Sign up</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'login' %}">Login</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign up</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
 
+<!-- Mobile Screen Navbar -->
+<nav class="navbar navbar-mobile navbar-light bg-white shadow-sm fixed-top">
+  <div class="container d-flex align-items-center">
+    <a class="navbar-brand" href="{% url 'index' %}">
+      <img src="{% static 'images/chambeopr_logo.png' %}" alt="ChambeoPR Logo" class="logo" />
+    </a>
+    <div class="search-container flex-grow-1">
+      <div class="index-bookiao-search-bar">
+        <input type="text" id="navbar-search-input" class="index-bookiao-input" placeholder="I am looking for..." aria-label="Search services" style="outline: none;">
+        <button id="navbar-search-button" class="index-bookiao-search-button" aria-label="Search">
+          <span class="material-symbols-outlined">search</span>
+        </button>
+      </div>
+    </div>
+    <button class="btn settings-btn" type="button">
+      <i class="fas fa-sliders-h"></i>
+    </button>
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#fullscreenMenu" aria-controls="fullscreenMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </div>
+  <div id="navbar-search-results" class="index-bookiao-search-results" role="listbox" aria-live="polite"></div>
+</nav>
+
+<!-- Offcanvas Fullscreen Menu -->
+<div class="offcanvas offcanvas-fullscreen" tabindex="-1" id="fullscreenMenu" aria-labelledby="fullscreenMenuLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="fullscreenMenuLabel">
+      <img src="{% static 'images/chambeopr_logo.png' %}" alt="ChambeoPR Logo" class="logo" />
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Services</a></li>
+      {% if user.is_authenticated %}
+        {% if user.is_pro %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Pro Dashboard</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="#" onclick="handleBecomeaPro(event)">Become a Pro</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'delete_account' %}">Manage Account</a></li>
+        <li class="nav-item">
+          <form id="logout-form-mobile" action="{% url 'logout' %}" method="post" onsubmit="return confirmLogout();">
+            {% csrf_token %}
+            <button type="submit" class="nav-link logout-btn">Sign out</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign up</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+  window.indexUrls = {
+      searchServices: '{% url "search_services" %}',
+      categoryUrls: {
+          home_services: '{% url "home_services" %}',
+          car_and_vehicle_services: '{% url "car_and_vehicle_services" %}',
+          pet_services: '{% url "pet_services" %}',
+          moving_services: '{% url "moving_services" %}',
+          professional_services: '{% url "professional_services" %}',
+          events_services: '{% url "events_services" %}',
+      }
+  };
+</script>
 <script>
   function confirmLogout() {
     return confirm("Are you sure you want to log out?");
@@ -98,5 +157,81 @@
     }
   }
 
-  window.addEventListener('resize', toggleBodyScrollbarClass);
+  // Mobile Navbar Search Functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    const navbarSearchInput = document.getElementById("navbar-search-input");
+    const navbarSearchResults = document.getElementById("navbar-search-results");
+
+    let typingTimer;
+    const doneTypingInterval = 100; // milliseconds
+
+    navbarSearchInput.addEventListener("click", function () {
+        performNavbarSearch();
+    });
+
+    navbarSearchInput.addEventListener("input", function () {
+        clearTimeout(typingTimer);
+        if (this.value) {
+            typingTimer = setTimeout(performNavbarSearch, doneTypingInterval);
+        } else {
+            navbarSearchResults.style.display = "none";
+        }
+    });
+
+    function performNavbarSearch() {
+        const query = navbarSearchInput.value.toLowerCase().trim();
+        fetch(`${window.indexUrls.searchServices}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                displayNavbarResults(data.filtered_services, query);
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+            });
+    }
+
+    function displayNavbarResults(filteredServices, query) {
+        let resultsHtml = "";
+        let hasResults = false;
+
+        for (const [category, services] of Object.entries(filteredServices)) {
+            const categoryName = category.replace(/_/g, " ");
+            const categoryMatches = categoryName.toLowerCase().includes(query.toLowerCase());
+
+            const filteredServicesList = services.map(service => service.name.toLowerCase());
+
+            const matchingServices = filteredServicesList.filter(service =>
+                service.includes(query.toLowerCase())
+            );
+
+            if (categoryMatches || matchingServices.length > 0 || !query) {
+                hasResults = true;
+                const categoryUrl = window.indexUrls.categoryUrls[category] || "#";
+                resultsHtml += `<div class="index-search-filter-result category" onclick="window.location.href='${categoryUrl}'">`;
+                resultsHtml += `<span>${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}</span>`;
+                resultsHtml += "</div>";
+
+                matchingServices.forEach((service) => {
+                    resultsHtml += `<div class="index-search-filter-result">`;
+                    resultsHtml += `<span>${service}</span>`;
+                    resultsHtml += "</div>";
+                });
+            }
+        }
+
+        if (!hasResults) {
+            resultsHtml = '<div class="index-search-filter-result no-results">No matches found</div>';
+        }
+
+        navbarSearchResults.innerHTML = resultsHtml;
+        navbarSearchResults.style.display = "block";
+    }
+
+    // Close search results when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!event.target.closest(".index-bookiao-search-bar")) {
+            navbarSearchResults.style.display = "none";
+        }
+    });
+  });
 </script>

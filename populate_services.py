@@ -1,28 +1,23 @@
-"""
-This script updates the Service model in the database to match the predefined
-set of services. It updates existing services, creates new ones, and deletes
-any services not in the predefined set.
-
-Run python populate_services.py in the terminal to update the database.
-"""
-
 import os
-
 import django
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import IntegrityError, transaction
-from termcolor import colored
+import sys
 
-from myapp.models import Service
+# Add the current directory to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "chambeopr.settings")
 django.setup()
 
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import IntegrityError, transaction
+from termcolor import colored
+from myapp.models import Service
+
 SERVICES = {
     "home_services": [
         "Air Conditioning",
-        "Babysitting/Nanny Services",
-        "Construction & Remodeling",
+        "Babysitting",
+        "Construction",
         "Electrician",
         "Gardening",
         "House & Airbnb Cleaning",
@@ -33,8 +28,8 @@ SERVICES = {
         "Plumbing",
         "Roofing",
         "Security Systems",
-        "Solar Panel Installation",
-        "Swimming Pool Maintenance",
+        "Solar Panels",
+        "Swimming Pools",
     ],
     "car_and_vehicle_services": [
         "Car Towing Services",

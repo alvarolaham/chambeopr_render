@@ -10,7 +10,7 @@
     <!-- External CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,8 +19,8 @@
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
     <link href="{% static 'css/index.css' %}" rel="stylesheet">
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
-    <link href="{% static 'css/onboarding.css' %}" rel="stylesheet"> 
-    <link href="{% static 'css/become_a_pro.css' %}" rel="stylesheet">  
+    <link href="{% static 'css/service_profiles.css' %}" rel="stylesheet">
+    <link href="{% static 'css/become_a_pro.css' %}" rel="stylesheet">
     <link href="{% static 'components/navbar.css' %}" rel="stylesheet">
     <link href="{% static 'components/footer.css' %}" rel="stylesheet">
     <link href="{% static 'components/breadcrumb.css' %}" rel="stylesheet">
@@ -62,33 +62,38 @@
             display: none;
             flex: 1 0 auto;
         }
+
+        .layout-background {
+            background-color: #f9f9f9;
+        }
+
         footer {
             flex-shrink: 0;
         }
     </style>
+    {% block styles %}{% endblock %}
 </head>
-<body>
+<body id="layout-body">
     <div id="preloader">
         <div class="spinner"></div>
     </div>
-
-    <div class="main-content">
+    <div class="main-content layout-background">
         {% include "myapp/navbar.html" %}
         <main>
-            <div class="container mt-4">
-                {% block content %}{% endblock %}
-                
-                {% if messages %}
-                <div class="container mt-3">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
+            
+            {% block content %}{% endblock %}
+            
+            {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                {% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
+            
         </main>
     </div>
     

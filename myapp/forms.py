@@ -1,10 +1,8 @@
 import json
-
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import SetPasswordForm, UserCreationForm
-from .models import ProAccount
-from .models import UserProfile
+from .models import ProAccount, UserProfile
 
 UserModel = get_user_model()
 
@@ -44,20 +42,24 @@ class CustomUserCreationForm(UserCreationForm):
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
-        first_name = self.cleaned_data.get("first_name")
-        last_name = self.cleaned_data.get("last_name")
-        username = self.cleaned_data.get("username")
+        first_name = (
+            self.cleaned_data.get("first_name") or ""
+        )  # Ensure it’s not None
+        last_name = (
+            self.cleaned_data.get("last_name") or ""
+        )  # Ensure it’s not None
+        username = (
+            self.cleaned_data.get("username") or ""
+        )  # Ensure it’s not None
 
         if password1 != password2:
             raise forms.ValidationError("The two password fields must match.")
 
+        # Ensure none of the fields are None before using lower() method
         if any(
-            item in password1.lower()
-            for item in [
-                first_name.lower(),
-                last_name.lower(),
-                username.lower(),
-            ]
+            item.lower() in password1.lower()
+            for item in [first_name, last_name, username]
+            if item
         ):
             raise forms.ValidationError(
                 "The password should not contain your first name, last name, or username."
@@ -78,20 +80,17 @@ class CustomSetPasswordForm(SetPasswordForm):
     def clean_new_password2(self):
         password1 = self.cleaned_data.get("new_password1")
         password2 = self.cleaned_data.get("new_password2")
-        first_name = self.user.first_name
-        last_name = self.user.last_name
-        username = self.user.username
+        first_name = self.user.first_name or ""  # Ensure it’s not None
+        last_name = self.user.last_name or ""  # Ensure it’s not None
+        username = self.user.username or ""  # Ensure it’s not None
 
         if password1 != password2:
             raise forms.ValidationError("The two password fields must match.")
 
         if any(
-            item in password1.lower()
-            for item in [
-                first_name.lower(),
-                last_name.lower(),
-                username.lower(),
-            ]
+            item.lower() in password1.lower()
+            for item in [first_name, last_name, username]
+            if item
         ):
             raise forms.ValidationError(
                 "The password should not contain your first name, last name, or username."
@@ -132,7 +131,15 @@ class BecomeAProForm(forms.Form):
 class ProAccountForm(forms.ModelForm):
     class Meta:
         model = ProAccount
-        fields = ["business_name", "phone_number", "zip_code"]
+        fields = [
+            "business_name",
+            "phone_number",
+            "zip_code",
+            "languages",  # New field
+            "business_email",  # New field
+            "rates",
+            "availability",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,15 +147,6 @@ class ProAccountForm(forms.ModelForm):
             self.initial["services"] = list(
                 self.instance.services.values_list("name", flat=True)
             )
-
-
-class OnboardingForm(forms.ModelForm):
-    rates = forms.CharField(widget=forms.HiddenInput(), required=False)
-    availability = forms.CharField(max_length=100, required=False)
-
-    class Meta:
-        model = ProAccount
-        fields = ["rates", "availability"]
 
     def clean_rates(self):
         rates = self.cleaned_data.get("rates")

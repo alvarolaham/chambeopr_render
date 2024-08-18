@@ -4,10 +4,13 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+from django.utils import timezone
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, username, email, first_name, last_name, password=None):
+    def create_user(
+        self, username, email, first_name, last_name, password=None
+    ):
         if not username:
             raise ValueError("Users must have a username")
         if not email:
@@ -20,10 +23,14 @@ class MyUserManager(BaseUserManager):
         )
         user.set_password(password)
         user.save(using=self._db)
-        UserProfile.objects.create(user=user)  # Create a UserProfile for the new user
+        UserProfile.objects.create(
+            user=user
+        )  # Create a UserProfile for the new user
         return user
 
-    def create_superuser(self, username, email, first_name, last_name, password):
+    def create_superuser(
+        self, username, email, first_name, last_name, password
+    ):
         user = self.create_user(
             username=username,
             email=email,
@@ -96,17 +103,19 @@ class Service(models.Model):
 
 class ProAccount(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
-    business_name = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=20)
-    zip_code = models.CharField(max_length=10)
+    business_name = models.CharField(max_length=255, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    zip_code = models.CharField(max_length=10, blank=True, null=True)
     services = models.ManyToManyField(Service)
     rates = models.TextField(blank=True, null=True)
-    availability = models.CharField(max_length=255, blank=True)
+    availability = models.CharField(max_length=255, blank=True, null=True)
     become_a_pro_completed = models.BooleanField(default=False)
-    onboarding_completed = models.BooleanField(default=False)
-    payment_method = models.CharField(max_length=50, blank=True)
+    payment_method = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    languages = models.TextField(blank=True, null=True)
+    profile_visibility = models.BooleanField(default=True)
+    business_email = models.EmailField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username}'s Pro Account"

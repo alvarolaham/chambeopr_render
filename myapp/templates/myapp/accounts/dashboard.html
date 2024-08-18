@@ -2,139 +2,146 @@
 {% load static %}
 {% block content %}
 
-<div class="dashboard-container">
-  <div class="dashboard-profile-header">
-    <div class="dashboard-profile-picture-container" id="dashboard-profile-pic-container">
-      {% if user.profile.profile_picture %}
-      <img src="{{ user.profile.profile_picture.url }}" class="dashboard-profile-picture" alt="Profile Picture" id="dashboard-profile-pic" />
-      {% else %}
-      <i class="fas fa-user-circle dashboard-profile-icon user-icon" id="dashboard-profile-icon"></i>
-      {% endif %}
+<div class="dashboard-full-background">
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Business Dashboard</h1>
     </div>
-    <div class="dashboard-profile-info">
-      <h1>{{ user.profile.name }}</h1>
-      <p>{{ user.profile.title }}</p>
-      <button class="dashboard-edit-picture-btn" data-bs-toggle="modal" data-bs-target="#uploadProfilePictureModal">Edit profile picture</button>
-    </div>
-  </div>
 
-  <div class="dashboard-profile-content">
-    <div class="dashboard-info-section">
-      <div class="dashboard-info">
-        <h2>Specialties</h2>
-        <p>{{ user.profile.specialties|default:"Not set" }}</p>
+    <!-- Picture Profile -->
+    <section class="profile-section">
+      <div class="dashboard-profile-picture-container profile-picture-container" id="dashboard-profile-pic-container">
+        {% if user.profile.profile_picture %}
+        <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" id="dashboard-profile-pic">
+        {% else %}
+        <i class="fas fa-user-circle profile-icon"></i>
+        {% endif %}
       </div>
-      <div class="dashboard-info">
-        <h2>Qualifications</h2>
-        <p>{{ user.profile.qualifications|default:"Not set" }}</p>
+      <a href="#" class="dashboard-edit-profile" data-bs-toggle="modal" data-bs-target="#uploadProfilePictureModal">
+        Edit profile picture<i class="fas fa-edit"></i></a>
+    </section>
+
+    <div class="dashboard-sections">
+      <!-- Profile Visibility -->
+      <div class="visibility-item">
+        <span class="visibility-label">Profile Visibility</span>
+        <label class="toggle-switch">
+            <input type="checkbox" {% if user.proaccount.profile_visibility %}checked{% endif %}>
+            <span class="slider"></span>
+        </label>
       </div>
-    </div>
 
-    <div class="dashboard-info-section">
-      <div class="dashboard-info">
-        <h2>Issues</h2>
-        <p>{{ user.profile.issues|default:"Not set" }}</p>
+      <!-- Business Name -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Business Name</div>
+          <div class="dashboard-info-value" id="business-name">{{ user.proaccount.business_name|default:"Not set" }}</div>
+        </div>
+        <button class="dashboard-edit-button" data-bs-toggle="modal" data-bs-target="#editBusinessNameModal"><i class="fas fa-edit"></i> Edit</button>
       </div>
-      <div class="dashboard-info">
-        <h2>Experience</h2>
-        <p>{{ user.profile.experience|default:"Not set" }}</p>
+
+      <!-- Zip Code -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Zip Code</div>
+          <div class="dashboard-info-value" id="zip-code">{{ user.proaccount.zip_code|default:"Not set" }}</div>
+        </div>
+        <button class="dashboard-edit-button" data-bs-toggle="modal" data-bs-target="#editZipCodeModal"><i class="fas fa-edit"></i> Edit</button>
       </div>
-    </div>
 
-    <div class="dashboard-section">
-      <h2>About</h2>
-      <p>{{ user.profile.about|default:"Not set" }}</p>
-    </div>
-
-    <div class="dashboard-section">
-      <h2>Office</h2>
-      {% if user.profile.office_picture %}
-      <img src="{{ user.profile.office_picture.url }}" class="img-fluid rounded" alt="Office Picture" />
-      {% else %}
-      <p>No office picture available</p>
-      {% endif %}
-    </div>
-  </div>
-
-  <div class="dashboard-publications">
-    <h2>Publications</h2>
-    {% for publication in publications %}
-    <div class="dashboard-publication">
-      <img src="{{ publication.image_url }}" alt="Publication Image" />
-      <div class="dashboard-publication-content">
-        <div class="dashboard-publication-title">{{ publication.title }}</div>
-        <div class="dashboard-publication-meta">{{ publication.author }} - {{ publication.date }}</div>
-        <div class="dashboard-publication-text">{{ publication.description }}</div>
+      <!-- Rates -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Rates starting at</div>
+          <div class="dashboard-info-value" id="currentRates"></div>
+        </div>
+        <button id="updateRatesBtn" class="dashboard-edit-button">
+          <i class="fas fa-edit"></i> Edit
+        </button>
       </div>
-    </div>
-    {% endfor %}
-  </div>
 
-  <div class="dashboard-reviews">
-    <h2>Reviews</h2>
-    {% for review in reviews %}
-    <div class="dashboard-review">
-      <img src="{{ review.reviewer_image_url }}" alt="Reviewer Image" />
-      <div class="dashboard-review-content">
-        <div class="dashboard-review-title">{{ review.reviewer_name }}</div>
-        <div class="dashboard-review-meta">{{ review.rating }} - {{ review.date }}</div>
-        <div class="dashboard-review-text">{{ review.text }}</div>
+      <!-- Languages -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Languages</div>
+          <div class="dashboard-info-value" id="languages">{{ user.proaccount.languages|default:"Not set" }}</div>
+        </div>
+        <button class="dashboard-edit-button" data-bs-toggle="modal" data-bs-target="#editLanguagesModal"><i class="fas fa-edit"></i> Edit</button>
       </div>
-    </div>
-    {% endfor %}
-  </div>
 
-  <div class="dashboard-profile-content">
-    <div class="dashboard-section" id="currentRates">
-      <h2>Current Rates</h2>
-      {% for rate in rates %}
-      <div class="mb-2">
-        <strong>{{ rate.service_name }}:</strong> ${{ rate.amount }}
+      <!-- Availability -->
+      <div class="dashboard-info-item" id="currentAvailability">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Availability</div>
+          <div class="dashboard-info-value">
+            <p>{{ user.proaccount.availability|default:"Not set" }}</p>
+          </div>
+        </div>
+        <button id="updateAvailabilityBtn" class="dashboard-edit-button">
+          <i class="fas fa-edit"></i> Edit
+        </button>
       </div>
-      {% endfor %}
-    </div>
-    <button id="updateRatesBtn" class="dashboard-btn">Update Rates</button>
 
-    <div class="dashboard-section" id="currentAvailability">
-      <h2>Availability</h2>
-      <p>{{ availability|default:"Not set" }}</p>
-    </div>
-    <button id="updateAvailabilityBtn" class="dashboard-btn">Update Availability</button>
+      <!-- Phone Number -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Phone Number</div>
+          <div class="dashboard-info-value" id="phone-number">{{ user.proaccount.phone_number|default:"Not set" }}</div>
+        </div>
+        <button class="dashboard-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneNumberModal"><i class="fas fa-edit"></i> Edit</button>
+      </div>
 
-    <div class="dashboard-section" id="currentServices">
-      <h2>Your Services</h2>
-      <ul>
-        {% for service in services %}
-        <li>{{ service.name }}</li>
-        {% endfor %}
-      </ul>
+      <!-- Email -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Business Email</div>
+          <div class="dashboard-info-value" id="business-email">{{ user.proaccount.business_email|default:"Not set" }}</div>
+        </div>
+        <button class="dashboard-edit-button" data-bs-toggle="modal" data-bs-target="#editBusinessEmailModal"><i class="fas fa-edit"></i> Edit</button>
+      </div>
+
+      <!-- Services -->
+      <div class="dashboard-info-item">
+        <div class="dashboard-info-content">
+          <div class="dashboard-info-label">Your Services</div>
+          <div class="dashboard-info-value">
+            <div id="dashboard-selectedServicesPills" class="service-pills"></div>
+            <div id="dashboard-removeAllServicesContainer">
+              <button type="button" id="dashboard-removeAllServicesBtn" class="btn-secondary">Remove all services</button>
+            </div>
+          </div>
+        </div>
+        <button id="updateServicesBtn" class="dashboard-edit-button">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+      </div>
+
     </div>
-    <button id="updateServicesBtn" class="dashboard-btn">Update Services</button>
+    <input type="hidden" id="selectedDashboardServices" name="services" />
   </div>
 </div>
 
-<!-- Modal structures remain the same -->
 <!-- Upload Profile Picture Modal -->
 <div class="modal fade" id="uploadProfilePictureModal" tabindex="-1" aria-labelledby="uploadProfilePictureModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content dashboard-modal-content">
-      <div class="modal-header dashboard-modal-header">
-        <h5 class="modal-title dashboard-modal-title" id="uploadProfilePictureModalLabel">Upload Profile Picture</h5>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadProfilePictureModalLabel">Upload Profile Picture</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body dashboard-modal-body">
+      <div class="modal-body">
         <form id="profilePictureForm" method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="id_profile_picture" class="dashboard-form-label">Choose a profile picture</label>
-            <input type="file" class="dashboard-form-control" id="id_profile_picture" name="profile_picture" accept="image/*" />
+            <label for="id_profile_picture" class="form-label">Choose a profile picture</label>
+            <input type="file" class="form-control" id="id_profile_picture" name="profile_picture" accept="image/*" />
           </div>
         </form>
       </div>
-      <div class="modal-footer dashboard-modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="dashboard-btn" id="saveProfilePictureBtn">Save changes</button>
-        <button type="button" class="dashboard-btn btn-danger" id="deleteProfilePictureBtn" style="display: none">Delete Profile Picture</button>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveProfilePictureBtn">Save changes</button>
+        <button type="button" class="btn-danger" id="deleteProfilePictureBtn" style="display: none">Delete Profile Picture</button>
       </div>
     </div>
   </div>
@@ -143,17 +150,17 @@
 <!-- Update Rates Modal -->
 <div class="modal fade" id="updateRatesModal" tabindex="-1" aria-labelledby="updateRatesModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content dashboard-modal-content">
-      <div class="modal-header dashboard-modal-header">
-        <h5 class="modal-title dashboard-modal-title" id="updateRatesModalLabel">Update Your Rates</h5>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateRatesModalLabel">Update Your Rates</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body dashboard-modal-body">
+      <div class="modal-body">
         <!-- Service rates will be dynamically added here -->
       </div>
-      <div class="modal-footer dashboard-modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="dashboard-btn" id="saveRatesBtn">Save changes</button>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveRatesBtn">Save changes</button>
       </div>
     </div>
   </div>
@@ -162,20 +169,20 @@
 <!-- Update Availability Modal -->
 <div class="modal fade" id="updateAvailabilityModal" tabindex="-1" aria-labelledby="updateAvailabilityModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content dashboard-modal-content">
-      <div class="modal-header dashboard-modal-header">
-        <h5 class="modal-title dashboard-modal-title" id="updateAvailabilityModalLabel">Update Your Availability</h5>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateAvailabilityModalLabel">Update Your Availability</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body dashboard-modal-body">
-        <textarea id="availabilityText" class="dashboard-form-control" rows="4" maxlength="100"></textarea>
+      <div class="modal-body">
+        <textarea id="availabilityText" class="form-control" rows="4" maxlength="100"></textarea>
         <div class="text-end mt-2">
           <small id="charCount">0/100</small>
         </div>
       </div>
-      <div class="modal-footer dashboard-modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="dashboard-btn" id="saveAvailabilityBtn">Save changes</button>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveAvailabilityBtn">Save changes</button>
       </div>
     </div>
   </div>
@@ -183,18 +190,125 @@
 
 <!-- Update Services Modal -->
 <div class="modal fade" id="updateServicesModal" tabindex="-1" aria-labelledby="updateServicesModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content dashboard-modal-content">
-      <div class="modal-header dashboard-modal-header">
-        <h5 class="modal-title dashboard-modal-title" id="updateServicesModalLabel">Update Your Services</h5>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateServicesModalLabel">Update Your Services</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body dashboard-modal-body">
-        <!-- Services will be dynamically added here -->
+      <div class="modal-body">
+        <div id="dashboard-servicesContainer">
+          {% for category, service_list in categorized_services.items %}
+    
+          <div class="dashboard-service-category" data-category="{{ category }}">
+            {{ category|title }}
+          </div>
+          {% for service in service_list %}
+          <div class="dashboard-service-option service-option" data-value="{{ service.id }}">
+            {{ service.name }}
+          </div>
+          {% endfor %}
+          {% endfor %}
+        </div>
       </div>
-      <div class="modal-footer dashboard-modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="dashboard-btn" id="saveServicesBtn">Save changes</button>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveServicesBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Business Name Modal -->
+<div class="modal fade" id="editBusinessNameModal" tabindex="-1" aria-labelledby="editBusinessNameModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBusinessNameModalLabel">Edit Business Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="editBusinessNameInput" placeholder="Enter your business name" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveBusinessNameBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Zip Code Modal -->
+<div class="modal fade" id="editZipCodeModal" tabindex="-1" aria-labelledby="editZipCodeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editZipCodeModalLabel">Edit Zip Code</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="editZipCodeInput" placeholder="Enter your zip code" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveZipCodeBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Languages Modal -->
+<div class="modal fade" id="editLanguagesModal" tabindex="-1" aria-labelledby="editLanguagesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editLanguagesModalLabel">Edit Languages</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="editLanguagesInput" placeholder="Enter languages (comma separated)" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveLanguagesBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Phone Number Modal -->
+<div class="modal fade" id="editPhoneNumberModal" tabindex="-1" aria-labelledby="editPhoneNumberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPhoneNumberModalLabel">Edit Phone Number</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="editPhoneNumberInput" placeholder="Enter your phone number" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="savePhoneNumberBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Business Email Modal -->
+<div class="modal fade" id="editBusinessEmailModal" tabindex="-1" aria-labelledby="editBusinessEmailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBusinessEmailModalLabel">Edit Business Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="email" class="form-control" id="editBusinessEmailInput" placeholder="Enter your business email" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn-primary" id="saveBusinessEmailBtn">Save changes</button>
       </div>
     </div>
   </div>
@@ -209,11 +323,18 @@
       deleteProfilePicture: '{% url "delete_profile_picture" %}',
       saveRates: '{% url "save_rates" %}',
       updateAvailability: '{% url "update_availability" %}',
-      updateServices: '{% url "update_services" %}'
+      updateServices: '{% url "update_services" %}',
+      updateBusinessName: '{% url "update_business_name" %}',
+      updateZipCode: '{% url "update_zip_code" %}',
+      updateLanguages: '{% url "update_languages" %}',
+      updatePhoneNumber: '{% url "update_phone_number" %}',
+      updateBusinessEmail: '{% url "update_business_email" %}',
+      updateProfileVisibility: '{% url "update_profile_visibility" %}',
     };
     window.csrfToken = '{{ csrf_token }}';
   });
 </script>
+
 <script src="{% static 'js/dashboard.js' %}"></script>
 
 {% endblock %}

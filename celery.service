@@ -1,0 +1,17 @@
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+Type=forking
+User=alvaro
+Group=alvaro
+EnvironmentFile=/Users/alvaro/bookiao_copy/.env
+WorkingDirectory=/Users/alvaro/bookiao_copy
+ExecStart=/Users/alvaro/bookiao_copy/env/bin/celery -A chambeopr multi start worker --loglevel=info --logfile=/var/log/celery/worker.log
+ExecStop=/Users/alvaro/bookiao_copy/env/bin/celery -A chambeopr multi stopwait worker
+ExecReload=/Users/alvaro/bookiao_copy/env/bin/celery -A chambeopr multi restart worker
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,3 +1,10 @@
+
+.become-a-pro-container {
+  max-width: 1200px;
+  padding: 30px;
+  margin: 0 auto;
+}
+
 .become-a-pro-service-option {
     padding: 0.75rem;
     cursor: pointer;

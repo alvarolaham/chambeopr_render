@@ -1,11 +1,15 @@
-{% extends "myapp/layout.html" %} {% block title %}Bookiao - Pet Services{% endblock %} {% block content %}
+{% extends "myapp/layout.html" %}
+
+{% block title %}Bookiao - {{ category_name }}{% endblock %}
+
+{% block content %}
 <div class="container mt-4">
-  {% include "myapp/breadcrumb.html" with current_page="Professional Services" %}
+  {% include "myapp/breadcrumb.html" with current_page=category_name %}
   <div class="services">
     <ul class="list-unstyled">
       {% for service in services %}
       <li class="pb-2">
-        <a href="#" class="text-decoration-none">{{ service }}</a>
+        <a href="#" class="text-decoration-none">{{ service.name }}</a>
       </li>
       {% endfor %}
     </ul>

@@ -1,85 +1,76 @@
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Document ready");
+    // Hide loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    loadingIndicator.style.display = 'none';
 
-    let typingTimer;
-    const doneTypingInterval = 100; // milliseconds
+    // Cache DOM queries
+    const subServicesContainer = document.querySelector('.index-sub-service-grid-container');
+    const serviceItems = document.querySelectorAll('.index-service-item');
 
-    const searchInput = document.getElementById("search-input");
-    const searchResults = document.getElementById("search-results");
+    // Function to split the name into lines based on the 15-character rule
+    function splitIntoLines(name, maxLength) {
+        let lines = [];
+        let words = name.split(" ");
+        let currentLine = "";
 
-    searchInput.addEventListener("click", function () {
-        console.log("Search input clicked");
-        performSearch();
-    });
-
-    searchInput.addEventListener("input", function () {
-        console.log("Input detected:", this.value);
-        clearTimeout(typingTimer);
-        if (this.value) {
-            typingTimer = setTimeout(performSearch, doneTypingInterval);
-        } else {
-            searchResults.style.display = "none";
-        }
-    });
-
-    function performSearch() {
-        const query = searchInput.value.toLowerCase().trim();
-        console.log("Performing search for:", query);
-        fetch(`${window.indexUrls.searchServices}?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Received data:", data);
-                displayResults(data, query);
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-            });
-    }
-
-    function displayResults(data, query) {
-        console.log("Displaying results for query:", query);
-        let resultsHtml = "";
-        let hasResults = false;
-
-        for (const [category, services] of Object.entries(data.filtered_services)) {
-            console.log("Processing category:", category);
-            const categoryName = category.replace(/_/g, " ");
-            const categoryMatches = categoryName.toLowerCase().includes(query.toLowerCase());
-            console.log("Category matches:", categoryMatches);
-            const filteredServices = services.filter((service) =>
-                service.toLowerCase().includes(query.toLowerCase())
-            );
-            console.log("Filtered services:", filteredServices);
-
-            if (categoryMatches || filteredServices.length > 0 || !query) {
-                hasResults = true;
-                const categoryUrl = window.indexUrls.categoryUrls[category] || "#";
-                resultsHtml += `<div class="index-search-filter-result category" onclick="window.location.href='${categoryUrl}'">`;
-                resultsHtml += `<span>${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}</span>`;
-                resultsHtml += "</div>";
-
-                filteredServices.forEach((service) => {
-                    resultsHtml += `<div class="index-search-filter-result">`;
-                    resultsHtml += `<span>${service}</span>`;
-                    resultsHtml += "</div>";
-                });
+        words.forEach(word => {
+            if ((currentLine + " " + word).trim().length <= maxLength) {
+                currentLine += (currentLine ? " " : "") + word;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
             }
-        }
-
-        if (!hasResults) {
-            resultsHtml = '<div class="index-search-filter-result no-results">No matches found</div>';
-        }
-        console.log("Results HTML:", resultsHtml);
-        searchResults.innerHTML = resultsHtml;
-        searchResults.style.display = "block";
+        });
+        lines.push(currentLine); // Add the last line
+        return lines.join("<br>");
     }
 
-    // Close search results when clicking outside
-    document.addEventListener("click", function (event) {
-        if (!event.target.closest(".index-bookiao-search-container")) {
-            searchResults.style.display = "none";
+    // Function to display sub-services based on selected category
+    function displaySubServices(category) {
+        const services = servicesData[category];
+
+        if (services && Array.isArray(services)) {
+            let servicesHtml = services.map(service => {
+                // Format the name with the custom splitting logic
+                let formattedName = splitIntoLines(service.name, 15);
+
+                return `
+                    <div class="index-sub-service-item no-underline">
+                        <div class="index-sub-service-icon">
+                            <span class="material-symbols-outlined" aria-hidden="true">${service.icon}</span>
+                        </div>
+                        <span class="index-sub-services-text">${formattedName}</span>
+                    </div>
+                `;
+            }).join('');
+
+            subServicesContainer.innerHTML = servicesHtml;
+            subServicesContainer.style.display = "flex";
+            subServicesContainer.style.flexWrap = "nowrap";
+            subServicesContainer.style.overflowX = "auto";
+        } else {
+            subServicesContainer.innerHTML = `<div>No services available for this category.</div>`;
+            subServicesContainer.style.display = "block";
         }
+
+        // Add active class to the clicked service item
+        serviceItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('data-category') === category) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    // Handle clicking on service category icons
+    serviceItems.forEach(function (item) {
+        item.addEventListener('click', function (event) {
+            event.preventDefault();
+            const category = this.getAttribute('data-category');
+            displaySubServices(category);
+        });
     });
 
-    console.log("Search functionality initialized");
+    // Default display for home services on page load
+    displaySubServices('home_services');
 });

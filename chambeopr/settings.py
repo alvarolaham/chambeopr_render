@@ -24,7 +24,8 @@ ALLOWED_HOSTS = env.list(
         "localhost",
         "127.0.0.1",
         "www.bookiao.com",
-        "bookiao.com"
+        "bookiao.com",
+        "testserver",
     ],
 )
 
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     "myapp",
     "anymail",
     "storages",  # Add storages for AWS S3
+    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -74,8 +76,19 @@ WSGI_APPLICATION = "chambeopr.wsgi.application"
 
 # Database configuration
 DATABASES = {
-    "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
+    "default": dj_database_url.config(conn_max_age=600, ssl_require=True),
+    "local": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("LOCAL_DB_NAME"),
+        "USER": env("LOCAL_DB_USER"),
+        "PASSWORD": env("LOCAL_DB_PASSWORD"),
+        "HOST": env("LOCAL_DB_HOST"),
+        "PORT": env("LOCAL_DB_PORT"),
+    },
 }
+
+if DEBUG:
+    DATABASES["default"] = DATABASES["local"]
 
 TEST_RUNNER = "myapp.tests.test_runner.PostgresTestRunner"
 
@@ -95,9 +108,14 @@ STATICFILES_DIRS = [BASE_DIR / "myapp" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+if DEBUG:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -126,9 +144,7 @@ LOGIN_URL = "login"
 LOGOUT_URL = "logout"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 # Email settings
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
@@ -167,26 +183,64 @@ X_FRAME_OPTIONS = "DENY"
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=True)
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
+# Logging configuration
+if DEBUG:
+    # Use default Django logging in debug mode
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+            },
         },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "loggers": {
+            "django": {
+                "handlers": ["console"],
+                "level": "INFO",
+            },
         },
-        'myapp': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': False,
+    }
+else:
+    # Production logging configuration
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "file": {
+                "level": "ERROR",
+                "class": "logging.FileHandler",
+                "filename": os.path.join(BASE_DIR, "error.log"),
+            },
         },
-    },
-}
+        "loggers": {
+            "django": {
+                "handlers": ["file"],
+                "level": "ERROR",
+                "propagate": True,
+            },
+            "myapp": {
+                "handlers": ["file"],
+                "level": "ERROR",
+                "propagate": False,
+            },
+        },
+    }
+
+
+# Celery Configuration Options
+if DEBUG:
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+else:
+    CELERY_BROKER_URL = env(
+        "REDIS_URL", default="redis://localhost:6379/0"
+    )  # Use your production Redis URL here
+    CELERY_RESULT_BACKEND = env(
+        "REDIS_URL", default="redis://localhost:6379/0"
+    )
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"

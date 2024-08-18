@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Validate Business Name
         if (businessNameInput.value.trim() === "") {
-            showError(businessNameInput, "Business name cannot be empty");
+            showError(businessNameInput, "Business name cannot be empty.");
             isValid = false;
         } else {
             clearError(businessNameInput);
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Validate Phone Number
         if (!validatePhoneNumber(phoneNumberInput.value)) {
-            showError(phoneNumberInput, "Please enter a valid Puerto Rico phone number");
+            showError(phoneNumberInput, "Please enter a valid phone number.");
             isValid = false;
         } else {
             clearError(phoneNumberInput);
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Validate Zip Code
         if (!validateZipCode(zipCodeInput.value)) {
-            showError(zipCodeInput, "Please enter a valid Puerto Rico zip code");
+            showError(zipCodeInput, "Please enter a valid Puerto Rico zip code.");
             isValid = false;
         } else {
             clearError(zipCodeInput);
