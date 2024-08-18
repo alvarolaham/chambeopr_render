@@ -77,14 +77,6 @@ WSGI_APPLICATION = "chambeopr.wsgi.application"
 # Database configuration
 DATABASES = {
     "default": dj_database_url.config(conn_max_age=600, ssl_require=True),
-    "local": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("LOCAL_DB_NAME"),
-        "USER": env("LOCAL_DB_USER"),
-        "PASSWORD": env("LOCAL_DB_PASSWORD"),
-        "HOST": env("LOCAL_DB_HOST"),
-        "PORT": env("LOCAL_DB_PORT"),
-    },
 }
 
 if DEBUG:
