@@ -63,45 +63,23 @@ window.onload = function () {
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
 
-            // Handle the scrolling and change active sub-service based on the scroll position
-            let isScrolling = false;
-            let lastActiveItem = null;
-
-            subServicesContainer.addEventListener('scroll', function () {
-                isScrolling = true;
-
-                // Get the current sub-service closest to the center
-                const containerCenter = subServicesContainer.offsetWidth / 2;
-                let closestItem = null;
-                let closestDistance = Infinity;
-
-                subServicesContainer.querySelectorAll('.index-sub-service-item').forEach(item => {
-                    const itemCenter = item.offsetLeft + item.offsetWidth / 2;
-                    const distanceToCenter = Math.abs(containerCenter - itemCenter);
-
-                    if (distanceToCenter < closestDistance) {
-                        closestDistance = distanceToCenter;
-                        closestItem = item;
-                    }
-                });
-
-                // If closest item is found and it's not the same as the last active, set it as active
-                if (closestItem && closestItem !== lastActiveItem) {
-                    if (lastActiveItem) {
-                        lastActiveItem.classList.remove('active');
-                    }
-                    closestItem.classList.add('active');
-                    lastActiveItem = closestItem;
-
-                    // Automatically filter profiles based on the active sub-service
-                    const service = closestItem.getAttribute('data-service');
+            // Add click event listeners to sub-service items
+            const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
+            subServiceItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove 'active' class from all items
+                    subServiceItems.forEach(i => i.classList.remove('active'));
+                    // Add 'active' class to clicked item
+                    this.classList.add('active');
+                    // Filter service profiles based on clicked item
+                    const service = this.getAttribute('data-service');
                     filterServiceProfiles(service);
-                }
+                });
             });
 
             // Trigger click on the first sub-service item
-            if (subServicesContainer.querySelectorAll('.index-sub-service-item').length > 0) {
-                subServicesContainer.querySelectorAll('.index-sub-service-item')[0].click();
+            if (subServiceItems.length > 0) {
+                subServiceItems[0].click();
             }
         } else {
             subServicesContainer.innerHTML = `<div>No services available for this category.</div>`;
