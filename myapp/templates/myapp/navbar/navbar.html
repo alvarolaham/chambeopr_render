@@ -180,14 +180,14 @@
     }
   }
 
-  // iOS detection
+  {% comment %} // iOS detection
   const isIOS = /iPad|iPhone/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
       document.body.classList.add('ios-device');
 
       // Remove inline 'display: none;' and show ios-header
       document.querySelector('.offcanvas-fullscreen').style.paddingTop = '3.2rem';
-      document.querySelector('.mobile-navbar').style.paddingBottom = '1rem';
+      document.querySelector('.mobile-navbar').style.paddingBottom = '1rem'; {% endcomment %}
 
-  }
+  //}
 </script>

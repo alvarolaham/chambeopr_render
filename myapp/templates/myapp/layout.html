@@ -119,18 +119,6 @@
             document.getElementById('preloader').style.display = 'none';
             document.querySelector('.main-content').style.display = 'block';
 
-            // iOS detection
-            const isIOS = /iPad|iPhone/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                document.body.classList.add('ios-device');
-
-                // Remove inline 'display: none;' and show ios-header
-                // document.querySelector('.ios-header').style.display = 'block';
-
-                // Add 5rem of top padding to the body on iOS
-                // document.body.style.paddingTop = '3.2rem';
-                
-            }
         });
     </script>
 </body>
