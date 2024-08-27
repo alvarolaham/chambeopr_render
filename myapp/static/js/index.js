@@ -86,69 +86,64 @@ window.onload = function () {
 
             // Handle click or touch events for mobile devices
             const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-            let isScrolling = false; // To track whether the user is scrolling
-            let touchStartX = 0;     // To store the initial touch X coordinate
-            let touchStartY = 0;     // To store the initial touch Y coordinate
-            let touchStartTime = 0;  // To track how long the touch lasted
+            let isScrolling = false;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchStartTime = 0;
+            let scrollStartPosition = 0;
 
             subServiceItems.forEach(item => {
                 const handleTouchStart = (event) => {
-                    // Record the initial touch coordinates and time
                     const touch = event.touches[0];
                     touchStartX = touch.clientX;
                     touchStartY = touch.clientY;
                     touchStartTime = new Date().getTime();
-                    isScrolling = false; // Reset scrolling flag
+                    isScrolling = false;
+                    scrollStartPosition = subServicesContainer.scrollLeft;
                 };
 
                 const handleTouchMove = (event) => {
-                    // If the user moves their finger significantly, they are scrolling
-                    const touch = event.touches[0];
-                    const deltaX = Math.abs(touch.clientX - touchStartX);
-                    const deltaY = Math.abs(touch.clientY - touchStartY);
+                    if (!isScrolling) {
+                        const touch = event.touches[0];
+                        const deltaX = Math.abs(touch.clientX - touchStartX);
+                        const deltaY = Math.abs(touch.clientY - touchStartY);
 
-                    // If the movement exceeds a threshold, mark as scrolling
-                    if (deltaX > 10 || deltaY > 10) {
-                        isScrolling = true;
+                        if (deltaX > 10 || deltaY > 10) {
+                            isScrolling = true;
+                        }
                     }
                 };
 
-                const handleTouchEnd = () => {
-                    // Only trigger the selection if the user was not scrolling and if the touch was short
+                const handleTouchEnd = (event) => {
                     const touchEndTime = new Date().getTime();
                     const touchDuration = touchEndTime - touchStartTime;
 
-                    // Only proceed with selection if it's a tap (short duration) and no scrolling occurred
                     if (!isScrolling && touchDuration < 300) {
                         const service = item.getAttribute('data-service');
                         filterServiceProfiles(service);
 
-                        // Remove 'active' class from all sub-service items and add it to the clicked one
                         subServiceItems.forEach(i => i.classList.remove('active'));
                         item.classList.add('active');
 
-                        // Scroll the clicked item into view
-                        scrollItemIntoView(subServicesContainer, item);
+                        // Only scroll into view if there was no scrolling
+                        if (subServicesContainer.scrollLeft === scrollStartPosition) {
+                            scrollItemIntoView(subServicesContainer, item);
+                        }
                     }
                 };
 
-                // Add event listeners for touch interaction
                 item.addEventListener('touchstart', handleTouchStart, { passive: true });
                 item.addEventListener('touchmove', handleTouchMove, { passive: true });
                 item.addEventListener('touchend', handleTouchEnd);
 
-                const handleInteraction = (event) => {
+                // Mouse click event for desktop
+                item.addEventListener('click', (event) => {
                     const service = item.getAttribute('data-service');
                     filterServiceProfiles(service);
-                    // Remove 'active' class from all sub-service items and add it to the clicked one
                     subServiceItems.forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
-                    // Scroll the clicked item into view
                     scrollItemIntoView(subServicesContainer, item);
-                };
-
-                // Add both click and touch events for better desktop experience
-                item.addEventListener('click', handleInteraction);
+                });
             });
 
             // Trigger click on the first sub-service item
@@ -172,20 +167,19 @@ window.onload = function () {
 
     // Function to filter service profiles based on clicked sub-service
     function filterServiceProfiles(service) {
-        let visibleProfiles = 0; // Keep track of how many profiles are visible
+        let visibleProfiles = 0;
 
         serviceProfiles.forEach(profile => {
             const services = profile.getAttribute('data-services').split(',');
 
             if (service === null || services.includes(service)) {
-                profile.style.display = 'block'; // Show the profile
+                profile.style.display = 'block';
                 visibleProfiles++;
             } else {
-                profile.style.display = 'none'; // Hide the profile
+                profile.style.display = 'none';
             }
         });
 
-        // Check if no profiles are visible and show the "No Results" message
         const noResultsElement = serviceProfilesContainer.querySelector('[data-service="no-results"]');
 
         if (visibleProfiles === 0) {
@@ -209,7 +203,6 @@ window.onload = function () {
             event.preventDefault();
             const category = this.getAttribute('data-category');
             displaySubServices(category);
-            // Scroll the clicked service item into view
             scrollItemIntoView(document.querySelector('.index-service-grid-container'), this);
         });
     });
