@@ -47,6 +47,7 @@ window.onload = function () {
         const services = servicesData[category];
         if (services && Array.isArray(services)) {
             let servicesHtml = services.map(service => {
+                // Format the name with the custom splitting logic
                 let formattedName = splitIntoLines(service.name, 15);
                 return `
                     <div class="index-sub-service-item no-underline" data-service="${service.name.toLowerCase()}">
@@ -62,65 +63,54 @@ window.onload = function () {
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
 
-            let touchStartX, touchStartY, touchStartTime;
-            let isTouchMove = false;
-            let touchedElement = null;
+            // Add touch and click event listeners to sub-service items
+            const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
+            subServiceItems.forEach(item => {
+                let touchStartX, touchStartY;
+                let isTouchMove = false;
 
-            subServicesContainer.addEventListener('touchstart', function(e) {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-                touchStartTime = new Date().getTime();
-                isTouchMove = false;
-                touchedElement = e.target.closest('.index-sub-service-item');
-            }, { passive: true });
+                item.addEventListener('touchstart', function(e) {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                    isTouchMove = false;
+                });
 
-            subServicesContainer.addEventListener('touchmove', function(e) {
-                if (!isTouchMove) {
+                item.addEventListener('touchmove', function(e) {
                     const touchEndX = e.touches[0].clientX;
                     const touchEndY = e.touches[0].clientY;
                     const dx = Math.abs(touchEndX - touchStartX);
                     const dy = Math.abs(touchEndY - touchStartY);
 
+                    // If movement exceeds 10px in any direction, it's considered a scroll
                     if (dx > 10 || dy > 10) {
                         isTouchMove = true;
                     }
-                }
-            }, { passive: true });
+                });
 
-            subServicesContainer.addEventListener('touchend', function(e) {
-                const touchEndTime = new Date().getTime();
-                const touchDuration = touchEndTime - touchStartTime;
-
-                if (!isTouchMove && touchDuration < 200 && touchedElement) {
-                    // This is a tap (quick touch and release without movement)
-                    const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-                    subServiceItems.forEach(item => item.classList.remove('active'));
-                    touchedElement.classList.add('active');
-                    const service = touchedElement.getAttribute('data-service');
-                    filterServiceProfiles(service);
-                }
-                touchedElement = null;
-            }, { passive: true });
-
-            // For non-touch devices, we'll still use click event
-            subServicesContainer.addEventListener('click', function(e) {
-                if (e.pointerType === 'mouse') {
-                    const clickedItem = e.target.closest('.index-sub-service-item');
-                    if (clickedItem) {
-                        const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-                        subServiceItems.forEach(item => item.classList.remove('active'));
-                        clickedItem.classList.add('active');
-                        const service = clickedItem.getAttribute('data-service');
+                item.addEventListener('touchend', function(e) {
+                    // Only activate if it wasn't a drag (scroll) action
+                    if (!isTouchMove) {
+                        // This is a tap (touch and lift without significant movement)
+                        subServiceItems.forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                        const service = this.getAttribute('data-service');
                         filterServiceProfiles(service);
                     }
-                }
+                });
+
+                // For non-touch devices, we'll still use click event
+                item.addEventListener('click', function(e) {
+                    subServiceItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    const service = this.getAttribute('data-service');
+                    filterServiceProfiles(service);
+                });
             });
 
-            // Activate the first sub-service item
-            const firstSubService = subServicesContainer.querySelector('.index-sub-service-item');
-            if (firstSubService) {
-                firstSubService.classList.add('active');
-                const service = firstSubService.getAttribute('data-service');
+            // Trigger activation on the first sub-service item
+            if (subServiceItems.length > 0) {
+                subServiceItems[0].classList.add('active');
+                const service = subServiceItems[0].getAttribute('data-service');
                 filterServiceProfiles(service);
             }
         } else {
