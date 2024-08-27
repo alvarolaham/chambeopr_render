@@ -89,13 +89,15 @@ window.onload = function () {
             let isScrolling = false; // To track whether the user is scrolling
             let touchStartX = 0;     // To store the initial touch X coordinate
             let touchStartY = 0;     // To store the initial touch Y coordinate
+            let touchStartTime = 0;  // To track how long the touch lasted
 
             subServiceItems.forEach(item => {
                 const handleTouchStart = (event) => {
-                    // Record the initial touch coordinates
+                    // Record the initial touch coordinates and time
                     const touch = event.touches[0];
                     touchStartX = touch.clientX;
                     touchStartY = touch.clientY;
+                    touchStartTime = new Date().getTime();
                     isScrolling = false; // Reset scrolling flag
                 };
 
@@ -112,8 +114,12 @@ window.onload = function () {
                 };
 
                 const handleTouchEnd = () => {
-                    // Only trigger the selection if the user was not scrolling
-                    if (!isScrolling) {
+                    // Only trigger the selection if the user was not scrolling and if the touch was short
+                    const touchEndTime = new Date().getTime();
+                    const touchDuration = touchEndTime - touchStartTime;
+
+                    // Only proceed with selection if it's a tap (short duration) and no scrolling occurred
+                    if (!isScrolling && touchDuration < 300) {
                         const service = item.getAttribute('data-service');
                         filterServiceProfiles(service);
 
