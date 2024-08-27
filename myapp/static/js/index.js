@@ -42,39 +42,6 @@ window.onload = function () {
         return lines.join("<br>");
     }
 
-    // Function to get the center element
-    function getCenterElement(container) {
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-        let closestElement = null;
-        let closestDistance = Infinity;
-
-        Array.from(container.children).forEach(child => {
-            const childRect = child.getBoundingClientRect();
-            const childCenter = childRect.left + childRect.width / 2;
-            const distance = Math.abs(containerCenter - childCenter);
-
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestElement = child;
-            }
-        });
-
-        return closestElement;
-    }
-
-    // Function to smoothly scroll to an element
-    function smoothScrollTo(container, element) {
-        const containerRect = container.getBoundingClientRect();
-        const elementRect = element.getBoundingClientRect();
-        const scrollLeft = container.scrollLeft + (elementRect.left - containerRect.left) - (containerRect.width / 2) + (elementRect.width / 2);
-
-        container.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-        });
-    }
-
     // Function to display sub-services based on selected category
     function displaySubServices(category) {
         const services = servicesData[category];
@@ -95,56 +62,53 @@ window.onload = function () {
             subServicesContainer.style.display = "flex";
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
-            subServicesContainer.style.scrollSnapType = "x mandatory";
 
-            const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-            subServiceItems.forEach(item => {
-                item.style.scrollSnapAlign = "center";
-            });
-
+            // Handle the scrolling and change active sub-service based on the scroll position
             let isScrolling = false;
-            let scrollTimeout;
+            let lastActiveItem = null;
 
-            const handleScroll = () => {
-                if (!isScrolling) {
-                    isScrolling = true;
-                }
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    isScrolling = false;
-                    const centerElement = getCenterElement(subServicesContainer);
-                    if (centerElement) {
-                        smoothScrollTo(subServicesContainer, centerElement);
-                        const service = centerElement.getAttribute('data-service');
-                        filterServiceProfiles(service);
-                        subServiceItems.forEach(item => item.classList.remove('active'));
-                        centerElement.classList.add('active');
+            subServicesContainer.addEventListener('scroll', function () {
+                isScrolling = true;
+
+                // Get the current sub-service closest to the center
+                const containerCenter = subServicesContainer.offsetWidth / 2;
+                let closestItem = null;
+                let closestDistance = Infinity;
+
+                subServicesContainer.querySelectorAll('.index-sub-service-item').forEach(item => {
+                    const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+                    const distanceToCenter = Math.abs(containerCenter - itemCenter);
+
+                    if (distanceToCenter < closestDistance) {
+                        closestDistance = distanceToCenter;
+                        closestItem = item;
                     }
-                }, 150);
-            };
-
-            subServicesContainer.addEventListener('scroll', handleScroll);
-
-            subServiceItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const service = item.getAttribute('data-service');
-                    filterServiceProfiles(service);
-                    subServiceItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    smoothScrollTo(subServicesContainer, item);
                 });
+
+                // If closest item is found and it's not the same as the last active, set it as active
+                if (closestItem && closestItem !== lastActiveItem) {
+                    if (lastActiveItem) {
+                        lastActiveItem.classList.remove('active');
+                    }
+                    closestItem.classList.add('active');
+                    lastActiveItem = closestItem;
+
+                    // Automatically filter profiles based on the active sub-service
+                    const service = closestItem.getAttribute('data-service');
+                    filterServiceProfiles(service);
+                }
             });
 
             // Trigger click on the first sub-service item
-            if (subServiceItems.length > 0) {
-                subServiceItems[0].click();
+            if (subServicesContainer.querySelectorAll('.index-sub-service-item').length > 0) {
+                subServicesContainer.querySelectorAll('.index-sub-service-item')[0].click();
             }
         } else {
             subServicesContainer.innerHTML = `<div>No services available for this category.</div>`;
             subServicesContainer.style.display = "block";
-            // Show all service profiles if no sub-services are available
             filterServiceProfiles(null);
         }
+
         // Add active class to the clicked service item
         serviceItems.forEach(item => {
             item.classList.remove('active');
@@ -192,7 +156,6 @@ window.onload = function () {
             event.preventDefault();
             const category = this.getAttribute('data-category');
             displaySubServices(category);
-            smoothScrollTo(document.querySelector('.index-service-grid-container'), this);
         });
     });
 
