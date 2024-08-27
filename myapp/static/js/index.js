@@ -63,57 +63,58 @@ window.onload = function () {
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
 
-            // Variables to handle touch and scroll detection
-            let isDragging = false;
-            let touchStartX = 0;
-
-            // Handle click and touch events
+            // Add touch event listeners to sub-service items
             const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-
             subServiceItems.forEach(item => {
-                const handleTouchStart = (event) => {
-                    const touch = event.touches[0];
-                    touchStartX = touch.clientX;
-                    isDragging = false; // Reset dragging flag on touch start
-                };
+                let touchStartX, touchStartY;
+                let isTouchMove = false;
 
-                const handleTouchMove = (event) => {
-                    const touch = event.touches[0];
-                    const deltaX = Math.abs(touch.clientX - touchStartX);
+                item.addEventListener('touchstart', function(e) {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                    isTouchMove = false;
+                });
 
-                    // If the user moves the finger more than a few pixels, we consider it a drag (scroll)
-                    if (deltaX > 10) {
-                        isDragging = true;
+                item.addEventListener('touchmove', function(e) {
+                    if (!isTouchMove) {
+                        const touchEndX = e.touches[0].clientX;
+                        const touchEndY = e.touches[0].clientY;
+                        const dx = Math.abs(touchEndX - touchStartX);
+                        const dy = Math.abs(touchEndY - touchStartY);
+
+                        // Consider it a move if finger has moved more than 10px in any direction
+                        if (dx > 10 || dy > 10) {
+                            isTouchMove = true;
+                        }
                     }
-                };
+                });
 
-                const handleTouchEnd = () => {
-                    // Only activate if not dragging (i.e., it was a tap/click)
-                    if (!isDragging) {
-                        const service = item.getAttribute('data-service');
-                        filterServiceProfiles(service);
+                item.addEventListener('touchend', function(e) {
+                    if (!isTouchMove) {
+                        // This is a click (touch and lift without significant movement)
                         subServiceItems.forEach(i => i.classList.remove('active'));
-                        item.classList.add('active');
+                        this.classList.add('active');
+                        const service = this.getAttribute('data-service');
+                        filterServiceProfiles(service);
                     }
-                };
+                });
 
-                // Add touch event listeners for mobile devices
-                item.addEventListener('touchstart', handleTouchStart, { passive: true });
-                item.addEventListener('touchmove', handleTouchMove, { passive: true });
-                item.addEventListener('touchend', handleTouchEnd);
-
-                // Mouse click event for desktop
-                item.addEventListener('click', (event) => {
-                    const service = item.getAttribute('data-service');
-                    filterServiceProfiles(service);
-                    subServiceItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
+                // For non-touch devices, we'll still use click event
+                item.addEventListener('click', function(e) {
+                    if (e.pointerType === 'mouse') {
+                        subServiceItems.forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                        const service = this.getAttribute('data-service');
+                        filterServiceProfiles(service);
+                    }
                 });
             });
 
-            // Trigger click on the first sub-service item
+            // Trigger activation on the first sub-service item
             if (subServiceItems.length > 0) {
-                subServiceItems[0].click();
+                subServiceItems[0].classList.add('active');
+                const service = subServiceItems[0].getAttribute('data-service');
+                filterServiceProfiles(service);
             }
         } else {
             subServicesContainer.innerHTML = `<div>No services available for this category.</div>`;
@@ -189,12 +190,14 @@ window.onload = function () {
         return null;
     }
 
-    // Function to trigger click on sub-service item
-    function triggerSubServiceClick(service) {
+    // Function to trigger activation on sub-service item
+    function triggerSubServiceActivation(service) {
         const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
         const targetItem = Array.from(subServiceItems).find(item => item.getAttribute('data-service') === service);
         if (targetItem) {
-            targetItem.click();
+            subServiceItems.forEach(i => i.classList.remove('active'));
+            targetItem.classList.add('active');
+            filterServiceProfiles(service);
         }
     }
 
@@ -207,7 +210,7 @@ window.onload = function () {
             if (category) {
                 displaySubServices(category);
                 setTimeout(() => {
-                    triggerSubServiceClick(initialService);
+                    triggerSubServiceActivation(initialService);
                 }, 0);
             } else {
                 displaySubServices('home_services');
