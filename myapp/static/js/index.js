@@ -63,17 +63,51 @@ window.onload = function () {
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
 
-            // Add click event listeners to sub-service items
+            // Variables to handle touch and scroll detection
+            let isDragging = false;
+            let touchStartX = 0;
+
+            // Handle click and touch events
             const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
+
             subServiceItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    // Remove 'active' class from all items
-                    subServiceItems.forEach(i => i.classList.remove('active'));
-                    // Add 'active' class to clicked item
-                    this.classList.add('active');
-                    // Filter service profiles based on clicked item
-                    const service = this.getAttribute('data-service');
+                const handleTouchStart = (event) => {
+                    const touch = event.touches[0];
+                    touchStartX = touch.clientX;
+                    isDragging = false; // Reset dragging flag on touch start
+                };
+
+                const handleTouchMove = (event) => {
+                    const touch = event.touches[0];
+                    const deltaX = Math.abs(touch.clientX - touchStartX);
+
+                    // If the user moves the finger more than a few pixels, we consider it a drag (scroll)
+                    if (deltaX > 10) {
+                        isDragging = true;
+                    }
+                };
+
+                const handleTouchEnd = () => {
+                    // Only activate if not dragging (i.e., it was a tap/click)
+                    if (!isDragging) {
+                        const service = item.getAttribute('data-service');
+                        filterServiceProfiles(service);
+                        subServiceItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                    }
+                };
+
+                // Add touch event listeners for mobile devices
+                item.addEventListener('touchstart', handleTouchStart, { passive: true });
+                item.addEventListener('touchmove', handleTouchMove, { passive: true });
+                item.addEventListener('touchend', handleTouchEnd);
+
+                // Mouse click event for desktop
+                item.addEventListener('click', (event) => {
+                    const service = item.getAttribute('data-service');
                     filterServiceProfiles(service);
+                    subServiceItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
                 });
             });
 
