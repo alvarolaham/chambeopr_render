@@ -5,6 +5,7 @@ window.onload = function () {
     // Cache DOM queries
     const loadingIndicator = document.getElementById('loading-indicator');
     const subServicesContainer = document.querySelector('.index-sub-service-grid-container');
+    const serviceItemsContainer = document.querySelector('.index-service-grid-container'); // Service container
     const serviceItems = document.querySelectorAll('.index-service-item');
     const serviceProfiles = document.querySelectorAll('.service-profile-body');
     const serviceProfilesContainer = document.querySelector('#service-profiles-container');
@@ -84,60 +85,12 @@ window.onload = function () {
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
 
-            // Handle click or touch events for mobile devices
+            // Handle click events for both mobile and desktop
             const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-            let isScrolling = false;
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let touchStartTime = 0;
-            let scrollStartPosition = 0;
 
             subServiceItems.forEach(item => {
-                const handleTouchStart = (event) => {
-                    const touch = event.touches[0];
-                    touchStartX = touch.clientX;
-                    touchStartY = touch.clientY;
-                    touchStartTime = new Date().getTime();
-                    isScrolling = false;
-                    scrollStartPosition = subServicesContainer.scrollLeft;
-                };
-
-                const handleTouchMove = (event) => {
-                    if (!isScrolling) {
-                        const touch = event.touches[0];
-                        const deltaX = Math.abs(touch.clientX - touchStartX);
-                        const deltaY = Math.abs(touch.clientY - touchStartY);
-
-                        if (deltaX > 10 || deltaY > 10) {
-                            isScrolling = true;
-                        }
-                    }
-                };
-
-                const handleTouchEnd = (event) => {
-                    const touchEndTime = new Date().getTime();
-                    const touchDuration = touchEndTime - touchStartTime;
-
-                    if (!isScrolling && touchDuration < 300) {
-                        const service = item.getAttribute('data-service');
-                        filterServiceProfiles(service);
-
-                        subServiceItems.forEach(i => i.classList.remove('active'));
-                        item.classList.add('active');
-
-                        // Only scroll into view if there was no scrolling
-                        if (subServicesContainer.scrollLeft === scrollStartPosition) {
-                            scrollItemIntoView(subServicesContainer, item);
-                        }
-                    }
-                };
-
-                item.addEventListener('touchstart', handleTouchStart, { passive: true });
-                item.addEventListener('touchmove', handleTouchMove, { passive: true });
-                item.addEventListener('touchend', handleTouchEnd);
-
-                // Mouse click event for desktop
                 item.addEventListener('click', (event) => {
+                    event.preventDefault();
                     const service = item.getAttribute('data-service');
                     filterServiceProfiles(service);
                     subServiceItems.forEach(i => i.classList.remove('active'));
@@ -153,10 +106,10 @@ window.onload = function () {
         } else {
             subServicesContainer.innerHTML = `<div>No services available for this category.</div>`;
             subServicesContainer.style.display = "block";
-            // Show all service profiles if no sub-services are available
-            filterServiceProfiles(null);
+            filterServiceProfiles(null); // Show all profiles if no sub-services
         }
-        // Add active class to the clicked service item
+
+        // Highlight the clicked category
         serviceItems.forEach(item => {
             item.classList.remove('active');
             if (item.getAttribute('data-category') === category) {
@@ -171,7 +124,6 @@ window.onload = function () {
 
         serviceProfiles.forEach(profile => {
             const services = profile.getAttribute('data-services').split(',');
-
             if (service === null || services.includes(service)) {
                 profile.style.display = 'block';
                 visibleProfiles++;
@@ -181,7 +133,6 @@ window.onload = function () {
         });
 
         const noResultsElement = serviceProfilesContainer.querySelector('[data-service="no-results"]');
-
         if (visibleProfiles === 0) {
             if (!noResultsElement) {
                 const noResultsHtml = `
@@ -197,13 +148,24 @@ window.onload = function () {
         }
     }
 
+    // Debounce logic to prevent double clicks
+    let isCategoryClickInProgress = false;
+
     // Handle clicking on service category icons
     serviceItems.forEach(function (item) {
         item.addEventListener('click', function (event) {
             event.preventDefault();
+            if (isCategoryClickInProgress) return; // Prevent double clicks
+            isCategoryClickInProgress = true;
+
             const category = this.getAttribute('data-category');
             displaySubServices(category);
-            scrollItemIntoView(document.querySelector('.index-service-grid-container'), this);
+            scrollItemIntoView(serviceItemsContainer, this); // Center the clicked category
+
+            // Allow another click after some time
+            setTimeout(() => {
+                isCategoryClickInProgress = false;
+            }, 300);
         });
     });
 
@@ -225,34 +187,51 @@ window.onload = function () {
         return null;
     }
 
-    // Function to trigger click on sub-service item
+    // Function to trigger click on service category
+    function triggerServiceCategoryClick(category) {
+        const targetCategory = Array.from(serviceItems).find(item => item.getAttribute('data-category') === category);
+        if (targetCategory) {
+            targetCategory.click();
+        }
+    }
+
+    // Updated function to trigger clicks on both service category and sub-service item
     function triggerSubServiceClick(service) {
-        const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
-        const targetItem = Array.from(subServiceItems).find(item => item.getAttribute('data-service') === service);
-        if (targetItem) {
-            targetItem.click();
+        const category = findCategoryForService(service);
+        if (category) {
+            // First, trigger the click on the service category
+            triggerServiceCategoryClick(category);
+
+            // Wait for the sub-services to be populated
+            setTimeout(() => {
+                const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
+                const targetItem = Array.from(subServiceItems).find(item => item.getAttribute('data-service').toLowerCase() === service.toLowerCase());
+                if (targetItem) {
+                    targetItem.click();
+                }
+                // Scroll the category into view
+                const categoryItem = Array.from(serviceItems).find(item => item.getAttribute('data-category') === category);
+                if (categoryItem) {
+                    scrollItemIntoView(serviceItemsContainer, categoryItem);
+                }
+            }, 100); // Small delay to ensure sub-services are loaded
         }
     }
 
     // Initial display logic
     const initialService = getUrlParameter('service');
+    const initialCategory = getUrlParameter('category');
 
     function initialize() {
         if (initialService) {
-            const category = findCategoryForService(initialService);
-            if (category) {
-                displaySubServices(category);
-                setTimeout(() => {
-                    triggerSubServiceClick(initialService);
-                }, 0);
-            } else {
-                displaySubServices('home_services');
-            }
+            triggerSubServiceClick(initialService);
+        } else if (initialCategory) {
+            triggerServiceCategoryClick(initialCategory);
         } else {
-            displaySubServices('home_services');
+            displaySubServices('home_services'); // Default category
         }
 
-        history.replaceState(null, '', location.pathname);
+        history.replaceState(null, '', location.pathname); // Clean up URL
         setTimeout(showContent, 100);
     }
 
@@ -263,4 +242,16 @@ window.onload = function () {
     } else {
         initialize();
     }
+
+    // Add this function to handle service clicks from the search modal
+    window.handleServiceClick = function(service, category) {
+        if (servicesModal) {
+            servicesModal.closeModal();
+        }
+        
+        // Use a small delay to ensure the modal is closed before triggering the clicks
+        setTimeout(() => {
+            triggerSubServiceClick(service);
+        }, 50);
+    };
 };

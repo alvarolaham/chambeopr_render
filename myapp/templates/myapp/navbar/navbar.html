@@ -64,7 +64,7 @@
 
         matchingServices.forEach((service) => {
           const lowerCaseService = service.toLowerCase();
-          resultsHtml += `<div class="index-search-filter-result" data-service="${lowerCaseService}" onclick="handleServiceClick('${lowerCaseService}')">`;
+          resultsHtml += `<div class="index-search-filter-result" data-service="${lowerCaseService}" onclick="handleServiceClick('${lowerCaseService}', '${category}')">`;
           resultsHtml += `<span>${capitalizeWords(service)}</span>`;
           resultsHtml += "</div>";
         });
@@ -78,8 +78,21 @@
     navbarResultsServicesList.innerHTML = resultsHtml;
   }
 
-  function handleServiceClick(service) {
+  // Updated handleServiceClick to also handle service category activation
+  function handleServiceClick(service, category) {
     servicesModal.closeModal();
+
+    // Trigger the category click to make it active and visible
+    const serviceItems = document.querySelectorAll('.index-service-item');
+    const serviceItemsContainer = document.querySelector('.index-service-grid-container');
+    
+    const targetCategory = Array.from(serviceItems).find(item => item.getAttribute('data-category') === category);
+    if (targetCategory) {
+      targetCategory.click();  // Trigger the category click
+      scrollItemIntoView(serviceItemsContainer, targetCategory);  // Scroll the category into view
+    }
+
+    // After the category is made visible, trigger the service
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('service', service);
     window.location.href = currentUrl.toString();
@@ -180,4 +193,24 @@
     }
   }
 
+  // Helper function to scroll item into view and center it
+  function scrollItemIntoView(container, item) {
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    const itemWidth = itemRect.width;
+    const containerScrollWidth = container.scrollWidth;
+
+    // Calculate the ideal scroll position to center the item
+    const idealScrollLeft = item.offsetLeft - (containerWidth / 2) + (itemWidth / 2);
+
+    // Clamp the scroll position to avoid empty space at the start or end
+    const maxScrollLeft = containerScrollWidth - containerWidth;
+    const clampedScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
+
+    container.scrollTo({
+      left: clampedScrollLeft,
+      behavior: 'smooth'
+    });
+  }
 </script>
