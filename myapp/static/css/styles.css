@@ -353,21 +353,6 @@ header {
 /* --------------------------------------------------------------------------------------- */
 
 
-/* Styles for the iOS-only div */
-.ios-header {
-  height: 3.2rem;
-  background-color: white;
-  width: 100%;
-  z-index: 3000; /* Set z-index to a high value to ensure it's above all other elements */
-  display: none; /* Hidden by default */
-  margin: 0;
-}
-
-/* Show the div only if the device is iOS */
-.ios-device .ios-header {
-  display: block;
-  margin:0;
-}
 
 
 
