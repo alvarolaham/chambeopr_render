@@ -112,6 +112,7 @@
   transform: translateY(100%);
   transition: transform 0.15s ease-out;
   overflow: hidden;
+  z-index: 2050;
 }
 
 .navbar-results-services-modal.open .navbar-results-modal-content {
