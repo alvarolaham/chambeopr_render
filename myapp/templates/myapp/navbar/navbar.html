@@ -1,0 +1,193 @@
+{% load static %}
+
+{% include 'myapp/navbar/navbar_desktop.html' %}
+{% include 'myapp/navbar/navbar_mobile.html' %}
+{% include 'myapp/navbar/navbar_mobile_search_modal.html' %}
+{% include 'myapp/navbar/navbar_offscreen_menu.html' %}
+
+
+<!-- Scripts -->
+<script>
+  window.indexUrls = {
+    searchServices: '{% url "search_services" %}',
+    categoryUrls: {
+      home_services: '{% url "home_services" %}',
+      car_and_vehicle_services: '{% url "car_and_vehicle_services" %}',
+      pet_services: '{% url "pet_services" %}',
+      moving_services: '{% url "moving_services" %}',
+      professional_services: '{% url "professional_services" %}',
+      events_services: '{% url "events_services" %}',
+    }
+  };
+
+  function confirmLogout() {
+    return confirm("Are you sure you want to log out?");
+  }
+
+  function handleBecomeaPro(event) {
+    {% if user.is_pro %}
+      event.preventDefault();
+      alert("You are already a pro user.");
+    {% else %}
+      window.location.href = "{% url 'become_a_pro' %}";
+    {% endif %}
+  }
+
+  function performNavbarSearch() {
+    const query = document.getElementById('navbar-results-searchInput').value.toLowerCase().trim();
+    fetch(`${window.indexUrls.searchServices}?q=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(data => displayNavbarResults(data.filtered_services, query))
+      .catch(error => {
+        console.error('Error fetching services:', error);
+        document.getElementById('navbar-results-servicesList').innerHTML = '<div class="index-search-filter-result no-results">Unable to fetch services at this time.</div>';
+      });
+  }
+
+  function displayNavbarResults(filteredServices, query) {
+    const navbarResultsServicesList = document.getElementById("navbar-results-servicesList");
+    let resultsHtml = "";
+    let hasResults = false;
+
+    for (const [category, services] of Object.entries(filteredServices)) {
+      const categoryName = category.replace(/_/g, " ");
+      const categoryMatches = categoryName.toLowerCase().includes(query.toLowerCase());
+
+      const matchingServices = services.map(service => service.name).filter(service => service.toLowerCase().includes(query.toLowerCase()));
+
+      if (categoryMatches || matchingServices.length > 0 || !query) {
+        hasResults = true;
+        const categoryUrl = window.indexUrls.categoryUrls[category] || "#";
+        resultsHtml += `<div class="index-search-filter-result category">`;
+        resultsHtml += `<span>${capitalizeWords(categoryName)}</span>`;
+        resultsHtml += "</div>";
+
+        matchingServices.forEach((service) => {
+          const lowerCaseService = service.toLowerCase();
+          resultsHtml += `<div class="index-search-filter-result" data-service="${lowerCaseService}" onclick="handleServiceClick('${lowerCaseService}')">`;
+          resultsHtml += `<span>${capitalizeWords(service)}</span>`;
+          resultsHtml += "</div>";
+        });
+      }
+    }
+
+    if (!hasResults) {
+      resultsHtml = '<div class="index-search-filter-result no-results">No matches found</div>';
+    }
+
+    navbarResultsServicesList.innerHTML = resultsHtml;
+  }
+
+  function handleServiceClick(service) {
+    servicesModal.closeModal();
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('service', service);
+    window.location.href = currentUrl.toString();
+  }
+
+  function capitalizeWords(str) {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  // Modal logic for search functionality
+  class ServicesModal {
+    constructor() {
+      this.modal = document.getElementById('navbar-results-servicesModal');
+      this.content = this.modal.querySelector('.navbar-results-modal-content');
+      this.dragHandle = this.modal.querySelector('.navbar-results-drag-handle');
+      this.clickArea = document.getElementById('navbar-results-click-area');
+      this.closeButton = document.getElementById('navbar-results-closeButton');
+      this.searchInput = document.getElementById('navbar-results-searchInput');
+      this.servicesList = document.getElementById('navbar-results-servicesList');
+      this.overlay = document.getElementById('navbar-results-modal-overlay');
+
+      this.dragStart = null;
+      this.dragDistance = 0;
+
+      this.bindEvents();
+    }
+
+    bindEvents() {
+      this.closeButton.addEventListener('click', () => this.closeModal());
+      this.clickArea.addEventListener('click', () => this.closeModal());
+      this.searchInput.addEventListener('input', () => performNavbarSearch());
+      
+      // Only bind touch events to the drag handle
+      this.dragHandle.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+      this.dragHandle.addEventListener('touchmove', (e) => this.handleTouchMove(e));
+      this.dragHandle.addEventListener('touchend', () => this.handleTouchEnd());
+      
+      document.getElementById('navbar-search-input').addEventListener('click', () => this.openModal());
+    }
+
+    openModal() {
+      this.modal.classList.add('open');
+      this.overlay.style.display = 'block';
+      this.clickArea.style.display = 'block';
+      this.searchInput.value = '';
+      performNavbarSearch();
+      this.servicesList.scrollTop = 0;
+    }
+
+    closeModal() {
+      this.modal.classList.remove('open');
+      this.overlay.style.display = 'none';
+      this.clickArea.style.display = 'none';
+      this.resetDrag();
+    }
+
+    handleTouchStart(e) {
+      this.dragStart = e.touches[0].clientY;
+    }
+
+    handleTouchMove(e) {
+      if (this.dragStart === null) return;
+      const currentPosition = e.touches[0].clientY;
+      this.dragDistance = currentPosition - this.dragStart;
+      if (this.dragDistance > 0) {
+        this.content.style.transform = `translateY(${this.dragDistance}px)`;
+        this.content.style.transition = 'none';
+      }
+    }
+
+    handleTouchEnd() {
+      if (this.dragDistance > 100) {
+        this.closeModal();
+      } else {
+        this.resetDrag();
+      }
+    }
+
+    resetDrag() {
+      this.dragStart = null;
+      this.dragDistance = 0;
+      this.content.style.transform = '';
+      this.content.style.transition = 'transform 0.3s ease-out';
+    }
+  }
+
+  // Initialize the modal
+  const servicesModal = new ServicesModal();
+
+  // Function to dynamically update the mobile navbar profile picture/icon
+  function updateMobileNavbarProfile(newProfileUrl) {
+    const mobileProfileContainer = document.getElementById('mobile-navbar-profile');
+
+    if (newProfileUrl) {
+      mobileProfileContainer.innerHTML = `<img src="${newProfileUrl}" alt="Profile Picture" class="rounded-circle" style="width: 35px; height: 35px;">`;
+    } else {
+      mobileProfileContainer.innerHTML = `<i class="fas fa-user-circle"></i>`;
+    }
+  }
+
+  // iOS detection
+  const isIOS = /iPad|iPhone/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+      document.body.classList.add('ios-device');
+
+      // Remove inline 'display: none;' and show ios-header
+      document.querySelector('.offcanvas-fullscreen').style.paddingTop = '3.2rem';
+      document.querySelector('.mobile-navbar').style.paddingBottom = '1rem';
+
+  }
+</script>

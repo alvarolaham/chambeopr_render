@@ -1,0 +1,29 @@
+<!-- Offcanvas Fullscreen Menu -->
+<div class="offcanvas offcanvas-fullscreen" tabindex="-1" id="fullscreenMenu" aria-labelledby="fullscreenMenuLabel">
+    <div class="offcanvas-header">
+      
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Services</a></li>
+        {% if user.is_authenticated %}
+          {% if user.is_pro %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Pro Dashboard</a></li>
+          {% else %}
+          <li class="nav-item"><a class="nav-link" href="#" onclick="handleBecomeaPro(event)">Become a Pro</a></li>
+          {% endif %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'delete_account' %}">Manage Account</a></li>
+          <li class="nav-item">
+            <form id="logout-form-mobile" action="{% url 'logout' %}" method="post" onsubmit="return confirmLogout();">
+              {% csrf_token %}
+              <button type="submit" class="nav-link logout-btn">Sign out</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign up</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>

@@ -1,0 +1,45 @@
+:root {
+    /* Breadcrumb colors */
+    --breadcrumb-link-color: #545454;
+    --breadcrumb-hover-background: #e0e0e0;
+  }
+  
+  .breadcrumb {
+    background-color: transparent;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+  
+  .breadcrumb-home i {
+    font-size: 1rem !important; /* Adjust this value to change the icon size */
+  }
+  
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+    color: #6c757d;
+    padding: 0 0.5rem;
+  }
+  
+  .breadcrumb-item a {
+    color: var(--breadcrumb-link-color);
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item a:hover {
+    background-color: var(--breadcrumb-hover-background);
+    border-radius: 50%;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item i {
+    font-size: 1.2rem;
+  }
+  
+  .breadcrumb-item-text {
+    color: var(--breadcrumb-link-color) !important;
+  }
+  

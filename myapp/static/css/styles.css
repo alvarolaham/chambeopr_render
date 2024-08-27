@@ -3,7 +3,7 @@
   --background-color: #ffffff;
   --text-color: #333;
   --link-color: #333;
-  --link-hover-color: #ff2e00;
+  --link-hover-color: #ff3400;
 
   /* Card button colors */
   --card-button-color: #4caf50;
@@ -33,10 +33,10 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  padding-top: 70px;
   color: var(--text-color);
   line-height: 1.6;
 }
+
 
 .main-content {
   flex: 1;
@@ -53,7 +53,6 @@ body {
 header {
   background-color: var(--background-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem 0;
 }
 
 .logo {
@@ -151,14 +150,19 @@ header {
   }
 }
 
+
 @media (max-width: 600px) {
+
+
+  footer {
+    display: none;
+  }
+
   .logo {
     width: 10vw;
     max-width: 40px !important;
   }
-}
 
-@media (max-width: 600px) {
   .service-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     column-gap: 1rem;
@@ -168,6 +172,8 @@ header {
     width: 90% !important;
   }
 }
+
+
 
 .card {
   border: none;
@@ -319,19 +325,18 @@ header {
 }
 
 
-
 /* Placeholder color for all inputs */
 ::placeholder {
   color: #a0a0a0 !important; /* Adjust this color to your preference */
   opacity: 1; /* Ensures the placeholder is fully opaque */
 }
 
-.signup-button {
-  background-color: #ff2e00 !important;
+.signup-page-button {
+  background-color: #ff3400 !important;
 }
 
-.login-button {
-  background-color: #ff2e00 !important;
+.login-page-button {
+  background-color: #ff3400 !important;
 }
 
 /* New font class for Inter */
@@ -344,5 +349,26 @@ header {
 .fallback-font {
   font-family: "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
 }
+
+/* --------------------------------------------------------------------------------------- */
+
+
+/* Styles for the iOS-only div */
+.ios-header {
+  height: 3.2rem;
+  background-color: white;
+  width: 100%;
+  z-index: 3000; /* Set z-index to a high value to ensure it's above all other elements */
+  display: none; /* Hidden by default */
+  margin: 0;
+}
+
+/* Show the div only if the device is iOS */
+.ios-device .ios-header {
+  display: block;
+  margin:0;
+}
+
+
 
 

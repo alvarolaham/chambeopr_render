@@ -62,7 +62,11 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_superuser  # Changed from is_admin to is_superuser
-
+    
+    @is_staff.setter
+    def is_staff(self, value):
+        """Allow setting the is_staff property."""
+        self.is_superuser = value
 
 class UserProfile(models.Model):
     user = models.OneToOneField(

@@ -98,8 +98,9 @@ class ProAccountChecker:
         pro_account = ProAccountChecker.get_pro_account(user)
         if pro_account:
             services = pro_account.services.all()
-            logger.info(f"Services for {user.username}: {services}")  # Log the services being returned
+            logger.info(
+                f"Services for {user.username}: {services}"
+            )  # Log the services being returned
             return services
         logger.warning(f"No ProAccount found for user {user.username}")
         return None
-

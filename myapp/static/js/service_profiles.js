@@ -50,7 +50,7 @@ function adjustLayout() {
             // Apply the responsive layout changes
             columns.forEach((column, index) => {
                 column.style.width = isNarrow ? '100%' : ''; // If the screen is narrow, set column width to 100%, otherwise reset
-                column.style.marginRight = index === 0 && !isNarrow ? '1.5rem' : '0'; // Add margin only for the first column on wider screens
+                column.style.marginRight = index === 0 && !isNarrow ? '1.25rem' : '0'; // Add margin only for the first column on wider screens
             });
 
             if (isNarrow) {

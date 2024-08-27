@@ -1,74 +1,76 @@
-{% load static %} {% for pro in pro_accounts %}
-<div class="service-profile-body">
-  <div class="pro-service-container">
-    <div class="pro-service-card">
-      <!-- Column for profile picture -->
-      <div class="pro-service-column pro-service-column-1">
-        <div class="pro-service-avatar">
-          {% if pro.profile_picture_url %}
-          <!-- If the user has a profile picture, display it -->
-          <img
-            src="{{ pro.profile_picture_url }}"
-            alt="{{ pro.user.username }}'s profile picture"
-            class="pro-profile-picture pro-profile-icon"/>
-          {% else %}
-          <!-- Fallback to the default icon if no picture exists -->
-          <span
-            class="fas fa-user-circle pro-profile-icon"
-            aria-hidden="true"
-          ></span>
-          {% endif %}
+{% load static %}
+<div id="service-profiles-container">
+  <!-- Loop through the ProAccounts to display their service profiles -->
+  {% for pro in pro_accounts %}
+  <div class="service-profile-body" data-services="{% for service in pro.services.all %}{{ service.name|lower }}{% if not forloop.last %},{% endif %}{% endfor %}">
+    <div class="pro-service-container">
+      <div class="pro-service-card">
+        <!-- Column for profile picture -->
+        <div class="pro-service-column pro-service-column-1">
+          <div class="pro-service-avatar">
+            {% if pro.profile_picture_url %}
+            <!-- If the user has a profile picture, display it -->
+            <img
+              src="{{ pro.profile_picture_url }}"
+              alt="{{ pro.user.username }}'s profile picture"
+              class="pro-profile-picture pro-profile-icon"/>
+            {% else %}
+            <!-- Fallback to the default icon if no picture exists -->
+            <span
+              class="fas fa-user-circle pro-profile-icon"
+              aria-hidden="true"
+            ></span>
+            {% endif %}
+          </div>
         </div>
-      </div>
-
-      <!-- Column for business details -->
-      <div class="pro-service-column pro-service-column-2">
-        <span class="pro-service-verified-badge">
-          {% if pro.is_verified %}Verified{% else %}Not Verified{% endif %}
-        </span>
-        <h2 class="pro-service-name">{{ pro.business_name }}</h2>
-        <p class="pro-service-locations">{{ pro.location }}</p>
-
-        <!-- Display services offered by the pro -->
-        <p class="pro-service-categories">
-          {% for service in pro.services.all %} {{ service.name }}
-          {% if not forloop.last %}, {% endif %} {% endfor %}
-        </p>
-
-        <!-- Pro account details: ratings, reviews, jobs -->
-        <p class="pro-service-info">
-          <span class="pro-service-rating-badge">
-            <span class="pro-service-rating"
-              >{{ pro.rating|default:"N/A" }}</span
-            >
-          </span>
-          <span class="pro-service-reviews-badge">
-            <span class="pro-service-reviews"
-              >{{ pro.reviews_count }} reviews</span
-            >
-          </span>
-          <span class="pro-service-jobs-badge">
-            <span class="pro-service-jobs">{{ pro.jobs_count }} jobs</span>
-          </span>
-        </p>
-
-        <!-- Display languages spoken by the pro -->
-        <p class="pro-service-languages">
-          Language(s): {{ pro.languages|join:", " }}
-        </p>
-      </div>
-
-      <!-- Column for starting rates -->
-      <div class="pro-service-column pro-service-column-3">
-        <p id="starting-at" class="pro-service-price-label">Starting at</p>
-        <p id="price" class="pro-service-price">
-            {{ pro.starting_rate }} <!-- Display raw data for debugging -->
+        <!-- Column for business details -->
+        <div class="pro-service-column pro-service-column-2">
+          
+          <h2 class="pro-service-name">{{ pro.business_name }}</h2>
+          <p class="pro-service-locations">{{ pro.location }}</p>
+          <!-- Display services offered by the pro -->
+          <p class="pro-service-categories">
+            {% for service in pro.services.all %}{{ service.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
           </p>
+        
+          <span class="pro-service-verified-badge">
+            {% if pro.is_verified %}Verified{% else %}Not Verified{% endif %}
+          </span>
+          <!-- Pro account details: ratings, reviews, jobs -->
+          <p class="pro-service-info">
+            <span class="pro-service-rating-badge">
+              <span class="pro-service-rating"
+                >{{ pro.rating|default:"N/A" }}</span
+              >
+            </span>
+            <span class="pro-service-reviews-badge">
+              <span class="pro-service-reviews"
+                >{{ pro.reviews_count }} reviews</span
+              >
+            </span>
+            <span class="pro-service-jobs-badge">
+              <span class="pro-service-jobs">{{ pro.jobs_count }} jobs</span>
+            </span>
+          </p>
+          <!-- Display languages spoken by the pro -->
+          <p class="pro-service-languages">
+            Language(s): {{ pro.languages|join:", " }}
+          </p>
+        </div>
+        <!-- Column for starting rates -->
+        <div class="pro-service-column pro-service-column-3">
+          <p class="pro-service-price-label">Starting at</p>
+          <p class="pro-service-price">
+              {{ pro.starting_rate }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
+  {% empty %}
+  {% endfor %}
 </div>
-{% endfor %}
+</div>
 
 <!-- Include the service profiles JavaScript file -->
 <script src="{% static 'js/service_profiles.js' %}"></script>

@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 # Define a temporary storage location
 temp_storage = FileSystemStorage(location="temp/")
 
-import json
 
 
 def index(request):
@@ -65,15 +64,6 @@ def index(request):
 
     # Render the index page with all the context
     return render(request, "myapp/index.html", context)
-
-
-
-
-
-
-
-
-
 
 
 def home_services(request):
@@ -164,15 +154,20 @@ def events_services(request):
 
 def search_services(request):
     query = request.GET.get("q", "").lower()
+
     filtered_services = {
         category: [
             service for service in services if query in service["name"].lower()
         ]
         for category, services in SERVICES.items()
     }
+
+    # Remove categories with no matching services
     filtered_services = {k: v for k, v in filtered_services.items() if v}
 
     return JsonResponse({"filtered_services": filtered_services})
+
+
 
 
 @login_required
@@ -196,6 +191,5 @@ def save_rates(request):
         return JsonResponse({"success": False, "error": "Invalid JSON data"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
-
 
 

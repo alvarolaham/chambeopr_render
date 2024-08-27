@@ -5,6 +5,7 @@ It includes functions for rendering the dashboard, updating various account deta
 and managing profile pictures.
 """
 
+import re
 import json
 import logging
 from collections import defaultdict
@@ -26,33 +27,65 @@ def dashboard(request):
     """
     Render the main dashboard for pro account users.
     """
-    pro_account = ProAccountChecker.get_pro_account(request.user)
-    if not pro_account:
-        return redirect("become_a_pro")
+    try:
+        # Check if the user has a pro account
+        pro_account = ProAccountChecker.get_pro_account(request.user)
+        if not pro_account:
+            logger.warning(
+                f"User {request.user.username} tried to access the dashboard without a pro account."
+            )
+            return redirect("become_a_pro")
 
-    services = ProAccountChecker.get_pro_services(request.user)
-    rates = json.loads(pro_account.rates) if pro_account.rates else {}
+        # Fetch services and rates
+        services = ProAccountChecker.get_pro_services(request.user)
+        rates = json.loads(pro_account.rates) if pro_account.rates else {}
 
-    # Categorizing services for display
-    categorized_services = defaultdict(list)
-    for service in Service.objects.all():
-        categorized_services[service.category].append(service)
+        # Categorizing services for display
+        categorized_services = defaultdict(list)
 
-    context = {
-        "business_name": pro_account.business_name or "No business name set",
-        "availability": pro_account.availability,
-        "services": services,
-        "rates": [
+        # Try fetching all services and catch any potential errors
+        try:
+            all_services = Service.objects.all()
+            for service in all_services:
+                categorized_services[service.category].append(service)
+        except Service.DoesNotExist:
+            logger.error(
+                f"Error fetching services for user {request.user.username}. No services found."
+            )
+            return render(
+                request,
+                "myapp/accounts/dashboard.html",
+                {"error": "Could not load services."},
+            )
+
+        context = {
+            "business_name": pro_account.business_name
+            or "No business name set",
+            "availability": pro_account.availability,
+            "services": services,
+            "rates": [
+                {
+                    "service_name": service.name,
+                    "amount": rates.get(str(service.id), "Not set"),
+                }
+                for service in services
+            ],
+            "categorized_services": dict(categorized_services),
+        }
+
+        return render(request, "myapp/accounts/dashboard.html", context)
+
+    except Exception as e:
+        logger.error(
+            f"Unexpected error occurred for user {request.user.username}: {str(e)}"
+        )
+        return render(
+            request,
+            "myapp/accounts/dashboard.html",
             {
-                "service_name": service.name,
-                "amount": rates.get(str(service.id), "Not set"),
-            }
-            for service in services
-        ],
-        "categorized_services": dict(categorized_services),
-    }
-
-    return render(request, "myapp/accounts/dashboard.html", context)
+                "error": "An unexpected error occurred. Please try again later.",
+            },
+        )
 
 
 def update_business_name(request):
@@ -129,27 +162,32 @@ def update_languages(request):
 @login_required
 @require_POST
 def update_phone_number(request):
-    """
-    Update the phone number for a pro account.
-
-    Args:
-        request: The HTTP request object containing the new phone number.
-
-    Returns:
-        JsonResponse: A JSON object indicating success or failure.
-    """
     try:
         pro_account = request.user.proaccount
         data = json.loads(request.body)
         phone_number = data.get("phone_number", "").strip()
+
+        # Remove hyphens from the phone number
+        phone_number = phone_number.replace("-", "")
+
+        # Perform phone number validation using regex
+        phone_regex = re.compile(
+            r"^\d{10}$"
+        )  # Simple regex for 10 digit numbers
+        if not phone_regex.match(phone_number):
+            return JsonResponse(
+                {"success": False, "error": "Invalid phone number"}, status=400
+            )
 
         pro_account.phone_number = phone_number if phone_number else None
         pro_account.save()
 
         return JsonResponse({"success": True})
     except (ValidationError, json.JSONDecodeError) as error:
-        logger.error("Error updating phone number: %s", str(error))
-        return JsonResponse({"success": False, "error": str(error)})
+        logger.error(f"Error updating phone number: {str(error)}")
+        return JsonResponse(
+            {"success": False, "error": str(error)}, status=400
+        )
 
 
 @login_required
@@ -208,16 +246,16 @@ def update_services(request):
         pro_account = request.user.proaccount
         data = json.loads(request.body)
         services = data.get("services", [])
-        
+
         # Convert all IDs to integers
         services = [int(service_id) for service_id in services]
-        
+
         logger.info(f"Received services data after conversion: {services}")
-        
-        # Rest of the function...
-        
+
         if not isinstance(services, list):  # Check if the services are a list
-            return JsonResponse({"success": False, "error": "Invalid data format"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Invalid data format"}, status=400
+            )
 
         # Validate services before updating
         valid_services = Service.objects.filter(id__in=services)
@@ -227,12 +265,23 @@ def update_services(request):
         if invalid_services:
             logger.error(f"Invalid service IDs: {list(invalid_services)}")
             return JsonResponse(
-                {"success": False, "error": f"Invalid service IDs: {list(invalid_services)}"},
+                {
+                    "success": False,
+                    "error": f"Invalid service IDs: {list(invalid_services)}",
+                },
                 status=400,
             )
 
-        # Update services and save to pro account
+        # Fetch current rates
+        current_rates = json.loads(pro_account.rates) if pro_account.rates else {}
+
+        # Remove rates for services that are no longer selected
+        updated_rates = {str(service_id): current_rates.get(str(service_id), "0") 
+                         for service_id in valid_service_ids}
+
+        # Update services and save rates
         pro_account.services.set(valid_services)
+        pro_account.rates = json.dumps(updated_rates)  # Save the updated rates as JSON
         pro_account.save()
 
         return JsonResponse({"success": True})
@@ -325,24 +374,29 @@ def get_user_profile_pic(request):
 @login_required
 @require_POST
 def update_profile_visibility(request):
-    """
-    Update the profile visibility setting for a pro account.
-
-    Args:
-        request: The HTTP request object containing the new profile visibility setting.
-
-    Returns:
-        JsonResponse: A JSON object indicating success or failure.
-    """
     try:
         pro_account = request.user.proaccount
         data = json.loads(request.body)
 
-        if "profile_visibility" in data:
+        # Ensure profile_visibility is a boolean
+        if "profile_visibility" in data and isinstance(
+            data["profile_visibility"], bool
+        ):
             pro_account.profile_visibility = data["profile_visibility"]
-        pro_account.save()
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Invalid value for profile visibility",
+                },
+                status=400,
+            )
 
+        pro_account.save()
         return JsonResponse({"success": True})
+
     except (ValidationError, json.JSONDecodeError) as error:
-        logger.error("Error updating profile visibility: %s", str(error))
-        return JsonResponse({"success": False, "error": str(error)})
+        logger.error(f"Error updating profile visibility: {str(error)}")
+        return JsonResponse(
+            {"success": False, "error": str(error)}, status=400
+        )

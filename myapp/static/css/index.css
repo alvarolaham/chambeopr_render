@@ -55,7 +55,6 @@
 }
 
 .index-parent-container {
-
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -152,171 +151,174 @@
 
 .index-service-grid-container,
 .index-sub-service-grid-container {
-  display: flex; /* Ensuring it behaves like a flex container */
-  overflow-x: auto; /* In case it needs to scroll */
+  display: flex;
+  overflow-x: auto;
   gap: 2rem;
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  scroll-behavior: smooth; /* Enables smooth scrolling */
-  justify-content: flex-start; /* Default to left alignment */
-  position: relative; /* Add positioning */
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  justify-content: flex-start;
+  position: relative;
   padding: 1.5rem 1rem 0.5rem 1.5rem !important;
 }
 
 .index-service-grid-container {
-  z-index: 1; /* Set z-index */
+  z-index: 1;
 }
 
 .index-sub-service-grid-container {
-  z-index: 0; /* Lower z-index than the first container */
+  z-index: 0;
 }
 
 .index-service-grid-container::-webkit-scrollbar,
 .index-sub-service-grid-container::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+  display: none;
 }
 
-.index-service-item {
-    flex: 0 0 auto; /* Prevents items from shrinking or growing */
-    text-align: center;
-    text-decoration: none;
-    color: #666;
-    border-bottom: 2px solid transparent; /* Initially, no underline */
-    box-sizing: border-box; /* Ensure border is included in the width */
-    padding-bottom: 0.2rem; /* Add padding to make space for the border */
-    animation: fadeIn 0.3s ease-in-out;
+.index-service-item,
+.index-sub-service-item {
+  flex: 0 0 auto;
+  text-align: center;
+  text-decoration: none;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  box-sizing: border-box;
+  padding-bottom: 0.5rem;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .index-sub-service-item {
   display: flex;
-  flex-direction: column; /* Stack icon and text vertically */
-  justify-content: center; /* Center vertically within the container */
-  align-items: center; /* Center horizontally within the container */
-  flex: 0 0 auto; /* Prevents items from shrinking or growing */
-  text-align: center;
-  text-decoration: none;
-  color: #666;
-  border-bottom: 2px solid transparent; /* Initially, no underline */
-  box-sizing: border-box; /* Ensure border is included in the width */
-  padding-bottom: 0.5rem; /* Add padding to make space for the border */
-  animation: fadeIn 0.3s ease-in-out;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
-
 
 .index-service-item:hover,
 .index-sub-service-item:hover {
-    color: black; /* Change text color to black on hover */
-    border-bottom: 2px solid black; /* Add a black underline under the container */
-    cursor: pointer;
-    transition: 0.3s;
+  color: black;
+  border-bottom: 2px solid black;
+  cursor: pointer;
+  transition: 0.3s;
 }
-
 
 .index-service-item:hover .index-service-icon,
 .index-sub-service-item:hover .index-sub-service-icon,
 .index-service-item:hover .index-services-text,
 .index-sub-service-item:hover .index-sub-services-text {
-    color: black; /* Change icon and text color to black on hover */
+  color: black;
 }
-
 
 .index-service-item.active,
 .index-sub-service-item.active {
-    color: black; /* Solid black color for the active state */
-    border-bottom: 2px solid black; /* Black underline for the active state */
+  color: black;
+  border-bottom: 2px solid black;
 }
 
 .index-service-item.active .index-service-icon,
 .index-sub-service-item.active .index-sub-service-icon,
 .index-service-item.active .index-services-text,
 .index-sub-service-item.active .index-sub-services-text {
-    color: black !important; /* Solid black color for the active state */
+  color: black !important;
 }
 
 .index-service-icon,
 .index-sub-service-icon {
-    font-size: 1.5rem;
-    color: #818181;
-    margin-bottom: 0.5rem; /* Space between icon and text */
+  font-size: 1.5rem;
+  color: #818181;
+  margin-bottom: 0.5rem;
 }
 
 .index-services-text,
 .index-sub-services-text {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #818181;
-    display: block;
-    text-align: center;
-    line-height: 1.2;
-    white-space: nowrap; /* Prevent text from wrapping */
-    margin-top: -0.70rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #818181;
+  display: block;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  margin-top: -0.70rem;
 }
 
 .index-shadow-xsm {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.08);
 }
 
-
-/* Responsive adjustments */
 @media (max-width: 600px) {
-    .index-bookiao-title {
-        font-size: 2rem;
-    }
-    .index-bookiao-search-container {
-        max-width: 98%;
-        padding: 2%;
-    }
-
-    .index-service-item,
-    .index-sub-service-item {
-        width: 5rem; /* Smaller width for smaller screens */
-    }
-
-    .index-service-icon,
-    .index-sub-service-icon {
-        font-size: 1.2rem;
-    }
-
-    .index-services-text,
-    .index-sub-services-text {
-        font-size: 0.65rem;
-    }
-
-    /* Hide index-parent-container on small screens */
-    .index-parent-container {
-        display: none;
-    }
-
-    .index-service-grid-container,
-    .index-sub-service-grid-container {
-      display: flex; /* Ensuring it behaves like a flex container */
-      overflow-x: auto; /* In case it needs to scroll */
-      gap: 0.8rem;
-      scrollbar-width: none; /* Hide scrollbar for Firefox */
-      scroll-behavior: smooth; /* Enables smooth scrolling */
-      justify-content: flex-start; /* Default to left alignment */
-      position: relative; /* Add positioning */
-      padding: 1.5rem 1rem 0.5rem 1.5rem !important;
-    }
-
-    .index-service-grid-container {
-      z-index: 1; /* Set z-index */
-    }
-    
-    .index-sub-service-grid-container {
-      z-index: 0; /* Lower z-index than the first container */
-    }
+  .index-bookiao-title {
+    font-size: 2rem;
+  }
+  .index-bookiao-search-container {
+    max-width: 98%;
+    padding: 2%;
+  }
+  .index-service-item,
+  .index-sub-service-item {
+    width: 5rem;
+  }
+  .index-service-icon,
+  .index-sub-service-icon {
+    font-size: 1.2rem;
+  }
+  .index-services-text,
+  .index-sub-services-text {
+    font-size: 0.7rem;
+  }
+  .index-parent-container {
+    display: none;
+  }
+  .index-service-grid-container,
+  .index-sub-service-grid-container {
+    gap: 0.8rem;
+  }
 }
 
-/* Center the service grid container on larger screens */
 @media (min-width: 600px) {
-    .index-service-grid-container {
-        justify-content: center; /* Center align items */
-    }
+  .index-service-grid-container {
+    justify-content: center;
+  }
 }
-
-
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: #717171;
+}
+
+.no-results .pro-service-name {
+  font-size: 1.5rem;
+  color: #717171;
+  margin: 0;
+}
+
+@media (max-width: 400px) {
+  .no-results {
+    padding: 1rem;
+  }
+  .no-results-icon {
+    font-size: 3rem;
+  }
+  .no-results .pro-service-name {
+    font-size: 1.2rem;
+  }
+}
+
+.index-service-grid-container, .index-sub-service-grid-container {
+  -webkit-overflow-scrolling: touch;
 }

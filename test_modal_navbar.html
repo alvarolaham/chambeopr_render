@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services Modal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        #openModalBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .services-modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.30s ease-out; /* Faster opacity transition */
+        }
+        .services-modal.open {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-content {
+            background-color: white;
+            width: 100%;
+            height: 92vh;
+            border-top-left-radius: 1.5rem;
+            border-top-right-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.20s ease-out;
+            overflow: hidden;
+        }
+        .services-modal.open .modal-content {
+            transform: translateY(0);
+        }
+        .modal-header {
+            position: relative;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .drag-handle {
+            width: 3rem;
+            height: 0.375rem;
+            background-color: #D1D5DB;
+            border-radius: 9999px;
+        }
+        .close-button {
+            font-size: 1rem;
+            color: #6B7280;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            z-index: 20;
+        }
+        .close-button:hover {
+            color: #374151;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: white;
+            position: relative; /* Ensure search icon is relative to this container */
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 0.575rem 3rem 0.575rem 3rem; /* Added padding on the left for the icon */
+            border: 1px solid #D1D5DB;
+            border-radius: 0.65rem;
+            font-size: 1.125rem;
+            box-sizing: border-box;
+        }
+        .search-input:focus {
+            outline: none;
+        }
+        .search-icon {
+            position: absolute;
+            left: 1.5rem; /* Adjust left position */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #9CA3AF;
+        }
+        .services-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 1.5rem 1.5rem;
+        }
+        .category {
+            margin-bottom: 2rem;
+        }
+        .category-title {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+         
+            top: 0;
+            background-color: white;
+            padding-top: 1rem;
+        }
+        .service-item {
+            background-color: #F9FAFB;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        .service-item:hover {
+            background-color: #F3F4F6;
+        }
+        .no-results {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6B7280;
+            font-size: 1.25rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <button id="openModalBtn">Open Services</button>
+
+    <div id="servicesModal" class="services-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="drag-handle"></div>
+            </div>
+            <div class="search-container">
+                <!-- SVG Search Icon -->
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search services" class="search-input">
+                <button id="closeButton" class="close-button" aria-label="Close">Cancel</button>
+            </div>
+            <div id="servicesList" class="services-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const SERVICES = {
+            "home_services": [
+                {"name": "Air Conditioning"},
+                {"name": "Babysitting"},
+                {"name": "Construction"},
+                {"name": "Electrician"},
+                {"name": "Gardening"},
+                {"name": "House Cleaning"},
+                {"name": "Interior Design"},
+                {"name": "Landscaping"},
+                {"name": "Painting"},
+                {"name": "Pest Control"},
+                {"name": "Plumbing"},
+                {"name": "Roofing"},
+                {"name": "Security Systems"},
+                {"name": "Solar Panels"},
+                {"name": "Swimming Pools"},
+            ],
+            "car_and_vehicle_services": [
+                {"name": "Car Towing"},
+                {"name": "Car Wash and Detailing"},
+                {"name": "Mechanics"},
+            ],
+            "pet_services": [
+                {"name": "Pet Boarding"},
+                {"name": "Pet Grooming"},
+                {"name": "Pet Training"},
+            ],
+            "moving_services": [
+                {"name": "Moving"},
+                {"name": "Storage"},
+            ],
+            "professional_services": [
+                {"name": "Accounting"},
+                {"name": "Legal Services"},
+                {"name": "Consulting"},
+            ],
+            "events_services": [
+                {"name": "Event Planning"},
+                {"name": "Catering"},
+                {"name": "Entertainment"},
+            ],
+        };
+
+        class ServicesModal {
+            constructor() {
+                this.modal = document.getElementById('servicesModal');
+                this.content = this.modal.querySelector('.modal-content');
+                this.closeButton = document.getElementById('closeButton');
+                this.searchInput = document.getElementById('searchInput');
+                this.servicesList = document.getElementById('servicesList');
+
+                this.dragStart = null;
+                this.dragDistance = 0;
+
+                this.bindEvents();
+                this.renderServices();
+            }
+
+            bindEvents() {
+                this.closeButton.addEventListener('click', () => this.closeModal());
+                this.searchInput.addEventListener('input', () => this.filterServices());
+                this.content.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+                this.content.addEventListener('touchmove', (e) => this.handleTouchMove(e));
+                this.content.addEventListener('touchend', () => this.handleTouchEnd());
+            }
+
+            openModal() {
+                this.modal.classList.add('open');
+                this.searchInput.value = '';
+                this.filterServices();
+            }
+
+            closeModal() {
+                this.modal.classList.remove('open');
+                this.resetDrag();
+            }
+
+            handleTouchStart(e) {
+                this.dragStart = e.touches[0].clientY;
+            }
+
+            handleTouchMove(e) {
+                if (this.dragStart === null) return;
+                const currentPosition = e.touches[0].clientY;
+                this.dragDistance = currentPosition - this.dragStart;
+                if (this.dragDistance > 0) {
+                    this.content.style.transform = `translateY(${this.dragDistance}px)`;
+                    this.content.style.transition = 'none';
+                }
+            }
+
+            handleTouchEnd() {
+                if (this.dragDistance > 100) {
+                    this.closeModal();
+                } else {
+                    this.resetDrag();
+                }
+            }
+
+            resetDrag() {
+                this.dragStart = null;
+                this.dragDistance = 0;
+                this.content.style.transform = '';
+                this.content.style.transition = 'transform 0.3s ease-out';
+            }
+
+            filterServices() {
+                const searchTerm = this.searchInput.value.toLowerCase();
+                const filteredServices = Object.entries(SERVICES).reduce((acc, [category, services]) => {
+                    const filtered = services.filter(service => 
+                        service.name.toLowerCase().includes(searchTerm)
+                    );
+                    if (filtered.length > 0) {
+                        acc[category] = filtered;
+                    }
+                    return acc;
+                }, {});
+
+                this.renderServices(filteredServices);
+            }
+
+            renderServices(services = SERVICES) {
+                this.servicesList.innerHTML = '';
+                if (Object.keys(services).length === 0) {
+                    this.servicesList.innerHTML = '<div class="no-results">No services found. Try a different search term.</div>';
+                    return;
+                }
+
+                Object.entries(services).forEach(([category, serviceList]) => {
+                    const categoryElement = document.createElement('div');
+                    categoryElement.className = 'category';
+                    
+                    const categoryTitle = document.createElement('h3');
+                    categoryTitle.className = 'category-title';
+                    categoryTitle.textContent = this.formatCategoryName(category);
+                    
+                    categoryElement.appendChild(categoryTitle);
+
+                    const serviceItems = document.createElement('div');
+                    serviceList.forEach(service => {
+                        const serviceItem = document.createElement('div');
+                        serviceItem.className = 'service-item';
+                        serviceItem.textContent = service.name;
+                        serviceItems.appendChild(serviceItem);
+                    });
+
+                    categoryElement.appendChild(serviceItems);
+                    this.servicesList.appendChild(categoryElement);
+                });
+            }
+
+            formatCategoryName(name) {
+                return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            }
+        }
+
+        // Initialize the modal
+        const servicesModal = new ServicesModal();
+
+        // Add event listener to open the modal
+        document.getElementById('openModalBtn').addEventListener('click', () => servicesModal.openModal());
+    </script>
+</body>
+</html>

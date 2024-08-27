@@ -32,7 +32,6 @@ from myapp.views_consolidated.utility_views import (
     get_services,
     get_rates_and_services,
     get_user_profile_pic,
-    resize_and_save_image,
 )
 
 from myapp.views_consolidated.dashboard_views import (

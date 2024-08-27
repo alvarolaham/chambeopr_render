@@ -4,11 +4,21 @@
     margin: 0;
     padding: 0;
     color: #222222;
+    opacity: 0;
+    animation: fadeInUp 0.3s ease forwards;
+    
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .pro-service-container {
     width: 550px;
-    margin: 1.1rem auto;
+    margin: 0.8rem auto;
     padding: 0.8rem;
     background-color: #ffffff;
     border-radius: 1rem;
@@ -145,7 +155,32 @@ p {
     margin: 0 0.45rem 0 0 !important;
 }
 
-@media (max-width: 600px) and (min-width: 401px) {
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background-color: transparent;
+    box-shadow: none;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #717171;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 600px) {
     .service-profile-body {
         font-size: 2.5vw;
     }
@@ -203,15 +238,21 @@ p {
     .pro-service-price {
         font-size: 1.4em;
     }
+
+    .no-results-icon {
+        font-size: 3rem;
+    }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 500px) {
     .pro-service-container {
         width: calc(100% - 20px);
         margin: 10px;
         padding: 0.5rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
+        border-radius: 0; /* Remove rounding */
+        box-shadow: none; /* Remove shadow */
+        border: none; /* Ensure no border */
+        background-color: transparent;
         box-sizing: border-box;
     }
 
@@ -222,15 +263,15 @@ p {
     .pro-service-column-1 {
         width: 100%;
         margin-right: 0;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
 
     .pro-service-avatar {
         width: 100%;
-        max-width: 400px;
+        max-width: 500px;
         height: auto;
         aspect-ratio: 1 / 1;
-        border-radius: 5px;
+        border-radius: 15px;
         overflow: hidden;
     }
 
@@ -269,18 +310,30 @@ p {
     .pro-service-rating-badge, 
     .pro-service-reviews-badge, 
     .pro-service-jobs-badge {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
 
     .pro-service-rating-badge .pro-service-rating,
     .pro-service-reviews-badge .pro-service-reviews,
     .pro-service-jobs-badge .pro-service-jobs {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
     }
 
     .pro-service-price {
-        font-size: 1.2rem;
+        font-size: 1rem;
         padding-left: 0.1rem;
         text-align: left;
+    }
+
+    .no-results {
+        padding: 1rem;
+    }
+
+    .no-results-icon {
+        font-size: 3rem;
+    }
+
+    .no-results .pro-service-name {
+        font-size: 1.2rem;
     }
 }

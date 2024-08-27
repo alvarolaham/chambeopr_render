@@ -16,18 +16,17 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=True)
 
-ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS",
-    default=[
-        "bookiao.herokuapp.com",
-        "bookiao-ae61444b7814.herokuapp.com",
-        "localhost",
-        "127.0.0.1",
-        "www.bookiao.com",
-        "bookiao.com",
-        "testserver",
-    ],
-)
+ALLOWED_HOSTS = [
+    "bookiao.herokuapp.com",
+    "bookiao-ae61444b7814.herokuapp.com",
+    "localhost",
+    "127.0.0.1",
+    "www.bookiao.com",
+    "bookiao.com",
+    "testserver",
+    "192.168.0.8"
+]
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -73,17 +72,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "chambeopr.wsgi.application"
 
-# Database configuration
-DATABASES = {
-    "default": dj_database_url.config(conn_max_age=600, ssl_require=True),
-}
+if DEBUG:  # Use local database for development
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("LOCAL_DB_NAME"),
+            "USER": env("LOCAL_DB_USER"),
+            "PASSWORD": env("LOCAL_DB_PASSWORD"),
+            "HOST": env("LOCAL_DB_HOST"),
+            "PORT": env("LOCAL_DB_PORT"),
+        }
+    }
+else:  # Use production database for non-debug mode
+    DATABASES = {
+        "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
+    }
 
-if DEBUG:
-    DATABASES["default"] = DATABASES["local"]
 
+# Testing configuration
 TEST_RUNNER = "myapp.tests.test_runner.PostgresTestRunner"
 
-# AWS S3 configuration
+# AWS S3 configuration for static and media files
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
@@ -137,7 +146,7 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
-# Email settings
+# Email settings using Anymail with Mailjet
 EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 ANYMAIL = {
     "MAILJET_API_KEY": env("MAILJET_API_KEY"),
@@ -145,6 +154,7 @@ ANYMAIL = {
 }
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
+# Custom user model
 AUTH_USER_MODEL = "myapp.MyUser"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -152,20 +162,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=True)
 SESSION_SAVE_EVERY_REQUEST = True
-
-# Template paths
-TEMPLATE_PATHS = {
-    "signup": "myapp/accounts/signup.html",
-    "login": "myapp/accounts/login.html",
-    "password_reset": "myapp/accounts/password_reset.html",
-    "password_reset_code": "myapp/accounts/password_reset_code.html",
-    "password_reset_confirm": "myapp/accounts/password_reset_confirm.html",
-    "password_reset_complete": "myapp/accounts/password_reset_complete.html",
-    "password_reset_done": "myapp/accounts/password_reset_done.html",
-    "password_reset_email": "myapp/accounts/password_reset_email.txt",
-    "delete_account": "myapp/accounts/delete_account.html",
-    "home_services": "myapp/services/home_services.html",
-}
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
@@ -175,62 +171,46 @@ CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=True)
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
 
 # Logging configuration
-if DEBUG:
-    # Use default Django logging in debug mode
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-            },
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",  # Use INFO level to reduce unnecessary output
         },
-        "loggers": {
-            "django": {
-                "handlers": ["console"],
-                "level": "INFO",
-            },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",  # Change from DEBUG to INFO
+            "propagate": True,
         },
-    }
-else:
-    # Production logging configuration
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "handlers": {
-            "file": {
-                "level": "ERROR",
-                "class": "logging.FileHandler",
-                "filename": os.path.join(BASE_DIR, "error.log"),
-            },
+        "django.db.backends": {
+            "level": "WARNING",  # Suppress SQL query logging
+            "handlers": ["console"],
+            "propagate": False,
         },
-        "loggers": {
-            "django": {
-                "handlers": ["file"],
-                "level": "ERROR",
-                "propagate": True,
-            },
-            "myapp": {
-                "handlers": ["file"],
-                "level": "ERROR",
-                "propagate": False,
-            },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",  # Log only errors related to requests
+            "propagate": False,
         },
-    }
+    },
+}
 
 
-# Celery Configuration Options
-if DEBUG:
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
-else:
-    CELERY_BROKER_URL = env(
-        "REDIS_URL", default="redis://localhost:6379/0"
-    )  # Use your production Redis URL here
-    CELERY_RESULT_BACKEND = env(
-        "REDIS_URL", default="redis://localhost:6379/0"
-    )
-
+# Celery configuration
+CELERY_BROKER_URL = (
+    "redis://localhost:6379/0"
+    if DEBUG
+    else env("REDIS_URL", default="redis://localhost:6379/0")
+)
+CELERY_RESULT_BACKEND = (
+    "redis://localhost:6379/0"
+    if DEBUG
+    else env("REDIS_URL", default="redis://localhost:6379/0")
+)
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateRemoveAllServicesBtn() {
+        // Ensure button visibility updates without refreshing the page
         removeAllServicesBtn.style.display = selectedDashboardServices.size > 0 ? "block" : "none";
     }
 
@@ -148,18 +149,42 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Content-Type": "application/json",
                     "X-CSRFToken": window.csrfToken,
                 },
-                body: JSON.stringify({ services: services }),  // Sending services as array
+                body: JSON.stringify({ services: services }),  // Sending services as an array
             });
     
             const data = await response.json();
-            if (!data.success) {
+            if (data.success) {
+                // Immediately update the dashboard without refreshing
+                updateSelectedServicesList(services);
+                fetchRatesAndServices();  // Call this to refresh the rates section dynamically
+                updateServicesModal.hide();  // Close the modal after saving services
+            } else {
                 alert("Error updating services. Please try again.");
             }
         } catch (error) {
             console.error("Error updating services:", error);
         }
     }
-    
+
+    function updateSelectedServicesList(updatedServices) {
+        selectedServicesPillsContainer.innerHTML = "";  // Clear current pills
+        tempSelectedServices.clear();  // Clear temporary selected services set
+
+        updatedServices.forEach(serviceId => {
+            const serviceName = getServiceNameById(serviceId);  // Get service name by ID
+            if (serviceName) {
+                addServicePill(serviceName, serviceId);  // Re-add the service pill dynamically
+                tempSelectedServices.add(serviceId);  // Add to the temporary services set
+            }
+        });
+        updateRemoveAllServicesBtn();  // Update the visibility of the "remove all" button
+    }
+
+    // Function to get the service name by its ID
+    function getServiceNameById(serviceId) {
+        const service = Array.from(document.querySelectorAll('.service-option')).find(option => option.dataset.value === String(serviceId));
+        return service ? service.textContent.trim() : null;
+    }
 
     dashboardServicesContainer.addEventListener("click", function (e) {
         if (e.target.classList.contains("service-option")) {
@@ -167,16 +192,18 @@ document.addEventListener("DOMContentLoaded", function () {
             const serviceId = e.target.dataset.value;
             if (tempSelectedServices.has(serviceId)) {
                 tempSelectedServices.delete(serviceId);
+                selectedDashboardServices.delete(serviceId); // Update selectedDashboardServices set
             } else {
                 tempSelectedServices.add(serviceId);
+                selectedDashboardServices.add(serviceId); // Update selectedDashboardServices set
             }
+            updateRemoveAllServicesBtn(); // Update button visibility after selection change
         }
     });
 
     document.getElementById("saveServicesBtn").addEventListener("click", function () {
         const selectedServices = Array.from(tempSelectedServices);
         updateServices(selectedServices);
-        updateServicesModal.hide();
     });
 
     function highlightSelectedServices() {
@@ -195,7 +222,6 @@ document.addEventListener("DOMContentLoaded", function () {
         tempSelectedServices.clear();
 
         const servicePills = document.querySelectorAll('.dashboard-service-pill');
-
         const selectedServiceNames = new Set(
             Array.from(servicePills).map(pill => pill.textContent.trim().replace('×', '').trim())
         );
@@ -269,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (data.success) {
                 updateRatesModal.hide();
-                fetchRatesAndServices();
+                fetchRatesAndServices();  // Dynamically update rates after saving
             } else {
                 alert("Error updating rates. Please try again.");
             }
