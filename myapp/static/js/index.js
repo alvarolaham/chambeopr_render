@@ -42,23 +42,35 @@ window.onload = function () {
         return lines.join("<br>");
     }
 
-    // Function to scroll item into view and center it if possible
-    function scrollItemIntoView(container, item) {
+    // Function to get the center element
+    function getCenterElement(container) {
         const containerRect = container.getBoundingClientRect();
-        const itemRect = item.getBoundingClientRect();
-        const containerWidth = containerRect.width;
-        const itemWidth = itemRect.width;
-        const containerScrollWidth = container.scrollWidth;
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        let closestElement = null;
+        let closestDistance = Infinity;
 
-        // Calculate the ideal scroll position to center the item
-        const idealScrollLeft = item.offsetLeft - (containerWidth / 2) + (itemWidth / 2);
+        Array.from(container.children).forEach(child => {
+            const childRect = child.getBoundingClientRect();
+            const childCenter = childRect.left + childRect.width / 2;
+            const distance = Math.abs(containerCenter - childCenter);
 
-        // Clamp the scroll position to avoid empty space at the start or end
-        const maxScrollLeft = containerScrollWidth - containerWidth;
-        const clampedScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestElement = child;
+            }
+        });
+
+        return closestElement;
+    }
+
+    // Function to smoothly scroll to an element
+    function smoothScrollTo(container, element) {
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const scrollLeft = container.scrollLeft + (elementRect.left - containerRect.left) - (containerRect.width / 2) + (elementRect.width / 2);
 
         container.scrollTo({
-            left: clampedScrollLeft,
+            left: scrollLeft,
             behavior: 'smooth'
         });
     }
@@ -83,66 +95,43 @@ window.onload = function () {
             subServicesContainer.style.display = "flex";
             subServicesContainer.style.flexWrap = "nowrap";
             subServicesContainer.style.overflowX = "auto";
+            subServicesContainer.style.scrollSnapType = "x mandatory";
 
-            // Handle click or touch events for mobile devices
             const subServiceItems = subServicesContainer.querySelectorAll('.index-sub-service-item');
+            subServiceItems.forEach(item => {
+                item.style.scrollSnapAlign = "center";
+            });
+
             let isScrolling = false;
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let touchStartTime = 0;
-            let scrollStartPosition = 0;
+            let scrollTimeout;
+
+            const handleScroll = () => {
+                if (!isScrolling) {
+                    isScrolling = true;
+                }
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isScrolling = false;
+                    const centerElement = getCenterElement(subServicesContainer);
+                    if (centerElement) {
+                        smoothScrollTo(subServicesContainer, centerElement);
+                        const service = centerElement.getAttribute('data-service');
+                        filterServiceProfiles(service);
+                        subServiceItems.forEach(item => item.classList.remove('active'));
+                        centerElement.classList.add('active');
+                    }
+                }, 150);
+            };
+
+            subServicesContainer.addEventListener('scroll', handleScroll);
 
             subServiceItems.forEach(item => {
-                const handleTouchStart = (event) => {
-                    const touch = event.touches[0];
-                    touchStartX = touch.clientX;
-                    touchStartY = touch.clientY;
-                    touchStartTime = new Date().getTime();
-                    isScrolling = false;
-                    scrollStartPosition = subServicesContainer.scrollLeft;
-                };
-
-                const handleTouchMove = (event) => {
-                    if (!isScrolling) {
-                        const touch = event.touches[0];
-                        const deltaX = Math.abs(touch.clientX - touchStartX);
-                        const deltaY = Math.abs(touch.clientY - touchStartY);
-
-                        if (deltaX > 10 || deltaY > 10) {
-                            isScrolling = true;
-                        }
-                    }
-                };
-
-                const handleTouchEnd = (event) => {
-                    const touchEndTime = new Date().getTime();
-                    const touchDuration = touchEndTime - touchStartTime;
-
-                    if (!isScrolling && touchDuration < 300) {
-                        const service = item.getAttribute('data-service');
-                        filterServiceProfiles(service);
-
-                        subServiceItems.forEach(i => i.classList.remove('active'));
-                        item.classList.add('active');
-
-                        // Only scroll into view if there was no scrolling
-                        if (subServicesContainer.scrollLeft === scrollStartPosition) {
-                            scrollItemIntoView(subServicesContainer, item);
-                        }
-                    }
-                };
-
-                item.addEventListener('touchstart', handleTouchStart, { passive: true });
-                item.addEventListener('touchmove', handleTouchMove, { passive: true });
-                item.addEventListener('touchend', handleTouchEnd);
-
-                // Mouse click event for desktop
-                item.addEventListener('click', (event) => {
+                item.addEventListener('click', () => {
                     const service = item.getAttribute('data-service');
                     filterServiceProfiles(service);
                     subServiceItems.forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
-                    scrollItemIntoView(subServicesContainer, item);
+                    smoothScrollTo(subServicesContainer, item);
                 });
             });
 
@@ -203,7 +192,7 @@ window.onload = function () {
             event.preventDefault();
             const category = this.getAttribute('data-category');
             displaySubServices(category);
-            scrollItemIntoView(document.querySelector('.index-service-grid-container'), this);
+            smoothScrollTo(document.querySelector('.index-service-grid-container'), this);
         });
     });
 
