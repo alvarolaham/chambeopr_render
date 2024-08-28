@@ -269,7 +269,7 @@ p {
     .pro-service-avatar {
         width: 100%;
         max-width: 500px;
-        height: auto;
+        height: 15rem;
         aspect-ratio: 1 / 1;
         border-radius: 15px;
         overflow: hidden;
@@ -294,7 +294,6 @@ p {
         align-items: flex-start;
         margin-top: 0.5rem;
         padding-top: 0.5rem;
-        border-top: 1px solid #e0e0e0;
         margin-left: 0;
     }
 

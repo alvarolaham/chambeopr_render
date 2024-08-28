@@ -57,8 +57,8 @@ function adjustLayout() {
                 card.style.flexDirection = 'column'; // Stack columns vertically on narrow screens
                 columns[2].style.alignItems = 'flex-start'; // Align the third column to the start
                 columns[2].style.marginTop = '0.25rem'; // Add some space above the third column
-                columns[2].style.paddingTop = '0.5rem'; // Add some padding to the top of the third column
-                columns[2].style.borderTop = '1px solid #e0e0e0'; // Add a border to the top of the third column
+                columns[2].style.paddingTop = '0.40rem'; // Add some padding to the top of the third column
+                
 
                 // Reorder the columns to ensure the third one is placed correctly
                 if (columns[1].nextElementSibling !== columns[2]) {
